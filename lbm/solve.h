@@ -138,7 +138,8 @@ inline void Domain::SolveIBM(double Tf, double dtout, char const * TheFileKey, p
 
             //update particles contact
             if(flag){
-                UpdateParticlesContactsIBM();
+                UpdateParticlesContacts();
+                // UpdateParticlesContactsIBM();
             }
             
             UpdateParticlePairForce();

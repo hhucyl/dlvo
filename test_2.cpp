@@ -120,17 +120,23 @@ int main (int argc, char **argv) try
         dom.Particles[ip].Beta = 0.0;
         dom.Particles[ip].Rh = 0.8*R;
         dom.Particles[ip].D = 2;
-        dom.Particles[ip].A = 1e-20/((ratiol/ratiot)*(ratiol/ratiot));
-        dom.Particles[ip].kappa = 1e9*ratiol;
-        dom.Particles[ip].Z = 1e-11*ratiot*ratiot/ratiol;
-        dom.Particles[ip].bbeta = 0.3;
-        dom.Particles[ip].epsilon = 2.05769e-20/((ratiol/ratiot)*(ratiol/ratiot));
-        dom.Particles[ip].s = 200e-9/ratiol;
-        dom.Particles[ip].Lc = 100e-9/ratiol;
-        dom.Particles[ip].l = 3.04e-10/ratiol;
+        if(dom.Particles[ip].IsFree())
+        {
+            dom.Particles[ip].A = 1e-20/((ratiol/ratiot)*(ratiol/ratiot));
+            dom.Particles[ip].kappa = 1e9*ratiol;
+            dom.Particles[ip].Z = 1e-11*ratiot*ratiot/ratiol;
+            dom.Particles[ip].bbeta = 0.3;
+            dom.Particles[ip].epsilon = 2.05769e-20/((ratiol/ratiot)*(ratiol/ratiot));
+            dom.Particles[ip].s = 200e-9/ratiol;
+            dom.Particles[ip].Lc = 100e-9/ratiol;
+            dom.Particles[ip].l = 3.04e-10/ratiol;
+            dom.Particles[ip].VdwCutoff = std::sqrt(dom.Particles[ip].A/(12.0*dom.Particles[ip].Z*dom.Particles[ip].kappa));
 
+        }
+        
 
     }
+    std::cout<<"Vdw Cutoff "<<dom.Particles.back().VdwCutoff<<std::endl;
     for(size_t ix=0; ix<nx; ix++)
     {
         dom.IsSolid[ix][0][0] = true;
@@ -143,9 +149,9 @@ int main (int argc, char **argv) try
     }
 
 
-    double Tf = 1e4;
+    double Tf = 2;
     
-    double dtout = 1e2;
+    double dtout = 1;
     dom.Box = 0.0, nx-1, 0.0;
     dom.modexy = 0;
     //solving

@@ -1,21 +1,21 @@
 clear
 clc
 prefix = '/home/pzhang/chen/dlvo/';
-middle = 'test_2_';
-for i = 10:10
+middle = 'test_cong1_';
+for i = 809:809
 name = strcat(prefix,middle,num2str(i,'%04d'),'.h5');
 pos = h5read(name,'/Pposition');
 nx = h5read(name,'/Nx');
 ny = h5read(name,'/Ny');
 Np = numel(pos)/6;
-R = 10;
+R = 5;
 ii = 1:Np*2;
 Pos = [pos(3*(ii-1)+1),pos(3*(ii-1)+2),pos(3*(ii-1)+3)];
 ptag = h5read(name,'/PTag');
 % pplist = h5read(name,'/PListPP');
 % pglist = h5read(name,'/PListPG');
 plist = h5read(name,'/PList');
-pforce = h5read(name,'/PForcelb');
+pforce = h5read(name,'/PForce');
 Pforce = [pforce(3*(ii-1)+1),pforce(3*(ii-1)+2),pforce(3*(ii-1)+3)];
 num = 0;
 color = {'r','g'};
@@ -23,7 +23,7 @@ color = {'r','g'};
 figure(1)
 viscircles(Pos(1,1:2),R,'color',char(color(ceil(1/Np))));
 hold on
-quiver(Pos(:,1),Pos(:,2),Pforce(:,1),Pforce(:,2),0.05)
+quiver(Pos(:,1),Pos(:,2),Pforce(:,1),Pforce(:,2),0.5)
 plot(Pos(1,1),Pos(1,2),'b.')
 text(Pos(1,1),Pos(1,2),num2str(1-1))
 for j=2:Np*2

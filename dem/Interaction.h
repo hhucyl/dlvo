@@ -100,6 +100,7 @@ void DiskPair::CalcForce(double dt)
     
     double dist  = norm(P2->X - P1->X);
     delta = P1->R + P2->R - dist;
+    // std::cout<<delta<<std::endl;
     if(P1->X(0)<(-10*P1->R)||P2->X(0)<(-10*P2->R)) delta = -1000;//couple with periodic
     if (delta>0)
     {
@@ -107,7 +108,8 @@ void DiskPair::CalcForce(double dt)
         //Force
         Vec3_t n    = (P2->X - P1->X)/dist;
         Vec3_t x    = P1->X+n*((P1->R*P1->R-P2->R*P2->R+dist*dist)/(2*dist));
-        Vec3_t Fn   = Kn*std::pow(delta,1.5)*n;
+        Vec3_t Fn   = Kn*std::pow(delta,1.0)*n;
+        // std::cout<<"collision "<<delta<<" "<<norm(Fn)<<std::endl;
         Vec3_t t1,t2,x1,x2;
         Rotation(P1->W,P1->Q,t1);
         Rotation(P2->W,P2->Q,t2);
@@ -124,6 +126,8 @@ void DiskPair::CalcForce(double dt)
             SFr = Mu*norm(Fn)/Kt*tan;
         }
         Vec3_t F    = Fn + Gn*dot(n,Vrel)*n + Kt*SFr + Gt*vt;
+        // std::cout<<"collision "<<delta<<" "<<norm(F)<<std::endl;
+
         if (dot(F,n)<0) F-=dot(F,n)*n;
 
         
@@ -154,7 +158,7 @@ void DiskPair::CalcForce(double dt)
         T1      = t1;
         T2      = t2;
 
-        //std::cout << F << " " << t1 << P1->IsFree() << P2->IsFree() << std::endl;
+        
 
     }else{
         // LubForce(dist,delta);
@@ -210,12 +214,13 @@ void DiskPair::Vdw(double dist, double delta)
     // if(-delta<P1->D)
     // {
         // std::cout<<1<<std::endl;
-        double A = P1->A;
+        double A = 2.0*P1->A*P2->A/(P1->A+P2->A);;
         Vec3_t n    = (P1->X - P2->X)/dist;
-        double Fvdw = std::fabs(A/(6.0*delta*delta)*(P1->R*P2->R/(P1->R+P2->R)));
+        double d = -delta>P1->VdwCutoff ? delta : P1->VdwCutoff;
+        double Fvdw = std::fabs(A/(6.0*d*d)*(P1->R*P2->R/(P1->R+P2->R)));
         F1 +=  -Fvdw*n;
         F2 +=   Fvdw*n;
-        // std::cout<<P1->X<<" "<<F1<<std::endl;
+        // std::cout<<"Vdw "<<Fvdw<<std::endl;
     // }
 }
 
@@ -223,22 +228,23 @@ void DiskPair::Electro(double dist, double delta)
 {
     // if(-delta<P1->D)
     // {
-        double kappa = P1->kappa;
-        double Z = P1->Z;
+        double kappa = 2.0*P1->kappa*P2->kappa/(P1->kappa+P2->kappa);
+        double Z = 2.0*P1->Z*P2->Z/(P1->Z+P2->Z);
         Vec3_t n    = (P1->X - P2->X)/dist;
         double Fe = kappa*(P1->R*P2->R/(P1->R+P2->R))*Z*std::exp(kappa*delta); // delta < 0 
         F1 +=  Fe*n;
         F2 +=  -Fe*n;
-        // std::cout<<-delta<<"E "<<Fe<<std::endl;
+        // std::cout<<"Elec "<<Fe<<std::endl;
+        
     // }
 }
 
 void DiskPair::Bridge(double dist, double delta)
 {
-    double Lc = P1->Lc;
+    double Lc = 2*P1->Lc*P2->Lc/(P2->Lc+P1->Lc);
     double l  = P1->l;
-    double beta = P1->bbeta;
-    double epsilon = P1->epsilon;
+    double beta = 2*P1->bbeta*P2->bbeta/(P1->bbeta+P2->bbeta);
+    double epsilon = 2*P1->epsilon*P2->epsilon/(P1->epsilon+P2->epsilon);
     double s = P1->s;
     if(Lc>-delta)
     {
@@ -246,6 +252,7 @@ void DiskPair::Bridge(double dist, double delta)
         Vec3_t n    = (P1->X - P2->X)/dist;
         F1 += -Fb*n;
         F2 += +Fb*n;
+        // std::cout<<"Bridge "<<Lc<<" "<<Fb<<std::endl;
     }
 
     
