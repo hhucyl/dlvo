@@ -58,6 +58,27 @@ void Setup(LBM::Domain &dom, void *UD)
 
 }
 
+void Initial(LBM::Domain &dom, void *UD)
+{
+    myUserData &dat = (*static_cast<myUserData *> (UD));
+    size_t nx = dom.Ndim(0);
+    size_t ny = dom.Ndim(1);
+    for(size_t ix=0; ix<nx; ++ix)
+    for(size_t iy=0; iy<ny; ++iy)
+    {
+        Vec3_t vtemp((double) dat.vb*iy/(ny-1), 0, 0);
+        dom.Rho[ix][iy][0] = 1.0;
+        dom.Vel[ix][iy][0] = vtemp;
+        dom.BForce[ix][iy][0] = 0.0, 0.0, 0.0;
+        for(size_t k=0; k<dom.Nneigh; ++k)
+        {
+            dom.F[ix][iy][0][k] = dom.Feq(k,1.0,vtemp);            
+            dom.Ftemp[ix][iy][0][k] = dom.Feq(k,1.0,vtemp);            
+        }
+
+    }
+}
+
 
 double random(double a, double b)
 {
@@ -73,9 +94,9 @@ int main (int argc, char **argv) try
     double nu = 0.01;
     int Rn = 5;
     double R = Rn*1.0;
-    double len = 3.0*R;//60.0/5.0*R;
-    int Pnx = 5;
-    int Pny = 6;  
+    double len = 3*R;//60.0/5.0*R;
+    int Pnx = 10;
+    int Pny = 11;  
     double vb = 0.01; 
     if(argc>=2) Nproc = atoi(argv[1]); 
 
@@ -142,7 +163,7 @@ int main (int argc, char **argv) try
         pos = 0.5*len,(ipy+1)*len+R+1,0.0;
         for(int ipx=0; ipx<Pnx; ++ipx)
         {
-            Vec3_t dxr(random(-1.0,1.0),random(-1.0,1.0),0.0);
+            Vec3_t dxr(random(-0.3*R,0.3*R),random(-0.3*R,0.3*R),0.0);
             // Vec3_t dxr(0.0,0.0,0.0);
             dom.Particles.push_back(DEM::Disk(-pnum, pos+dxr, v, w, rhos, R, dom.dtdem));
             // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
@@ -166,7 +187,7 @@ int main (int argc, char **argv) try
         dom.Particles[ip].D = 2;
         if(dom.Particles[ip].IsFree())
         {
-            dom.Particles[ip].A = 1e-20/((ratiol/ratiot)*(ratiol/ratiot));
+            dom.Particles[ip].A = 2e-20/((ratiol/ratiot)*(ratiol/ratiot));
             dom.Particles[ip].kappa = 1e9*ratiol;
             dom.Particles[ip].Z = 1e-11*ratiot*ratiot/ratiol;
             dom.Particles[ip].bbeta = 0.3;
@@ -183,12 +204,13 @@ int main (int argc, char **argv) try
     }
     
 
-    dom.InitialFromH5("test_cong_0999.h5",g0);
+    // dom.InitialFromH5("test_cong_0999.h5",g0);
     // dom.Initial(rho,v0,g0);
+    Initial(dom,dom.UserData);
 
-    double Tf = 3e2;
+    double Tf = 1e6;
     dom.IsF = true;    
-    double dtout = 1e2;
+    double dtout = 1e3;
     dom.Box = 0.0, nx-1, 0.0;
     dom.modexy = 0;
     //solving
