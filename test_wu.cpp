@@ -8,15 +8,17 @@ struct myUserData
     double nu;
     double R;
     double rhos;
-    double vb;
+    double rho1;
+    double rho2;
 };
 void Setup(LBM::Domain &dom, void *UD)
 {
     size_t nx = dom.Ndim(0);
     size_t ny = dom.Ndim(1);
     myUserData &dat = (*static_cast<myUserData *> (UD));
-    Vec3_t vvb(dat.vb,0.0,0.0);
+
     // std::cout<<vvb<<std::endl;
+    //specific top layer pressure
     #pragma omp parallel for schedule(static) num_threads(dom.Nproc)
     for(size_t ix=0;ix<nx;++ix)
     {
@@ -27,10 +29,41 @@ void Setup(LBM::Domain &dom, void *UD)
         
         for(size_t k=0; k<dom.Nneigh; ++k)
         {
-            f[k] = dom.Feq(k,rho1,vvb) + f1[k] - dom.Feq(k,rho1,vel1);
+            f[k] = dom.Feq(k,dat.rho1,vel1) + f1[k] - dom.Feq(k,rho1,vel1);
         }
         Vec3_t idx(ix,ny-1,0);
         dom.CalcPropsForCell(idx);
+    }
+
+    //specific bottom layer pressure
+    #pragma omp parallel for schedule(static) num_threads(dom.Nproc)
+    for(size_t ix=0;ix<nx;++ix)
+    {
+        double *f = dom.F[ix][0][0];
+        double *f1 = dom.F[ix][1][0];
+        double rho1 = dom.Rho[ix][1][0];
+        Vec3_t vel1 = dom.Vel[ix][1][0];
+        
+        for(size_t k=0; k<dom.Nneigh; ++k)
+        {
+            f[k] = dom.Feq(k,dat.rho2,vel1) + f1[k] - dom.Feq(k,rho1,vel1);
+        }
+        Vec3_t idx(ix,0,0);
+        dom.CalcPropsForCell(idx);
+    }
+
+    //fix the moving particle if leave the domain in y direction
+    #pragma omp parallel for schedule(static) num_threads(dom.Nproc)
+    for(size_t ip=0; ip<dom.Particles.size(); ++ip)
+    {
+        if(!dom.Particles[ip].IsFree()) continue;
+        if(dom.Particles[ip].X(1)<-3*R)
+        {
+            dom.Particles[ip].V = 0.0;
+            dom.Particles[ip].W = 0.0;
+            dom.Particles[ip].FixVeloc();
+
+        }
     }
 
 }
@@ -43,8 +76,10 @@ void Initial(LBM::Domain &dom, void *UD)
     for(size_t ix=0; ix<nx; ++ix)
     for(size_t iy=0; iy<ny; ++iy)
     {
-        Vec3_t vtemp((double) dat.vb*iy/(ny-1), 0, 0);
+        // Vec3_t vtemp((double) dat.vb*iy/(ny-1), 0, 0);
         // Vec3_t vtemp((double) dat.vb, 0, 0);
+        Vec3_t vtemp(0, -0.1, 0);
+        
         dom.Rho[ix][iy][0] = 1.0;
         dom.Vel[ix][iy][0] = vtemp;
         dom.BForce[ix][iy][0] = 0.0, 0.0, 0.0;
@@ -71,21 +106,22 @@ int main (int argc, char **argv) try
     double nu = 0.01;
     int Rn = 5;
     double R = Rn*1.0;
-    double ppl = 3*R;
+    double ppl = 3*R;//60.0/5.0*R;
     double ratio = 10.0;
     double RR = ratio*R;
-    int Pnx = 5;
+    int Pnx = 5;//big particle number
     int Pny = 3; 
-    int pnx = 10;
-    int pny = 10;
-    double pdx = 0;
-    double pdy = 0; 
-    double vb = 0.01; 
+    int pnx = 10;//small particle number
+    int pny = 10; 
+    // double vb = 0.01; 
+    double pdx = 0;//gap between big particle
+    double pdy = 0;
+
     if(argc>=2) Nproc = atoi(argv[1]); 
 
-    size_t nx = std::ceil(Pnx*(RR*2 + pdx));
-    double pl = (double) nx/pnx;
-    size_t ny = std::ceil((Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR + ppl + (pny-1)*pl)+6*Rn + 1;
+    size_t nx = std::ceil(Pnx*(RR*2+pdx));
+    double pl = (double) nx/pnx;//gap between small particle automatic set up
+    size_t ny = std::ceil((Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR + ppl+(pny-1)*pl+6*R)+1;
     size_t nz = 1;
     double dx = 1.0;
     double dt = 1.0;
@@ -95,7 +131,7 @@ int main (int argc, char **argv) try
     std::cout<<"RR = "<<RR<<std::endl;
     double rho = 1.0;
     double rhos = 2.7;
-    double Ga = 2.0;
+    double Ga = 0.0;
     double gy = Ga*Ga*nu*nu/((8*R*R*R)*(rhos/rho-1));
     std::cout<<"gy = "<<gy<<std::endl;
     //nu = 1.0/30.0;
@@ -106,7 +142,8 @@ int main (int argc, char **argv) try
     my_dat.nu = nu;
     my_dat.g = gy;
     my_dat.R = R;
-    my_dat.vb = vb;
+    my_dat.rho1 = 1.0+1e-4;
+    my_dat.rho2 = 1.0;
     Vec3_t g0(0.0,0.0,0.0);
     dom.Nproc = Nproc;       
 
@@ -121,6 +158,8 @@ int main (int argc, char **argv) try
     dom.dtdem = 0.01*dt;
     //fix
     Vec3_t pos(0.0,0.0,0.0);
+    Vec3_t pos1(0.0,0.0,0.0);
+    Vec3_t dxp(0.0,0.0,0.0);
     Vec3_t v(0.0,0.0,0.0);
     Vec3_t w(0.0,0.0,0.0);
     double py = 0;
@@ -140,10 +179,10 @@ int main (int argc, char **argv) try
             pnum++;
         }
     }
-    for(size_t ix=0; ix<nx; ++ix)
-    {
-        dom.IsSolid[ix][0][0] = true;
-    }
+    // for(size_t ix=0; ix<nx; ++ix)
+    // {
+    //     dom.IsSolid[ix][0][0] = true;
+    // }
 
     //move
     double sy = (Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR + ppl;
@@ -201,15 +240,20 @@ int main (int argc, char **argv) try
     
 
     // dom.InitialFromH5("test_cong_0999.h5",g0);
-    // dom.Initial(rho,v0,g0);
-    Initial(dom,dom.UserData);
+    dom.Initial(rho,v0,g0);
+    // Initial(dom,dom.UserData);
 
-    double Tf = 2;
+    double Tf = 1e5;
     dom.IsF = true;    
-    double dtout = 1;
+    double dtout = 1e2;
+    // periodic in x
     dom.Box = 0.0, nx-1, 0.0;
     dom.modexy = 0;
+    // periodic in y
+    // dom.Box = 0.0, ny-1, 0.0;
+    // dom.modexy = 1;
+    
     //solving
-    dom.SolveIBM( Tf, dtout, "test_fine", Setup, NULL);
+    dom.SolveIBM( Tf, dtout, "test_wu", Setup, NULL);
     
 }MECHSYS_CATCH
