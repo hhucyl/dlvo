@@ -214,7 +214,7 @@ void DiskPair::Vdw(double dist, double delta)
     // if(-delta<P1->D)
     // {
         // std::cout<<1<<std::endl;
-        double A = 2.0*P1->A*P2->A/(P1->A+P2->A);;
+        double A = (P1->A+P2->A)==0 ? 0 : 2.0*P1->A*P2->A/(P1->A+P2->A);
         Vec3_t n    = (P1->X - P2->X)/dist;
         double d = -delta>P1->VdwCutoff ? delta : P1->VdwCutoff;
         double Fvdw = std::fabs(A/(6.0*d*d)*(P1->R*P2->R/(P1->R+P2->R)));
@@ -228,8 +228,8 @@ void DiskPair::Electro(double dist, double delta)
 {
     // if(-delta<P1->D)
     // {
-        double kappa = 2.0*P1->kappa*P2->kappa/(P1->kappa+P2->kappa);
-        double Z = 2.0*P1->Z*P2->Z/(P1->Z+P2->Z);
+        double kappa = (P1->kappa+P2->kappa)==0 ? 0 : 2.0*P1->kappa*P2->kappa/(P1->kappa+P2->kappa);
+        double Z = (P1->Z+P2->Z)==0 ? 0 : 2.0*P1->Z*P2->Z/(P1->Z+P2->Z);
         Vec3_t n    = (P1->X - P2->X)/dist;
         double Fe = kappa*(P1->R*P2->R/(P1->R+P2->R))*Z*std::exp(kappa*delta); // delta < 0 
         F1 +=  Fe*n;
@@ -241,11 +241,12 @@ void DiskPair::Electro(double dist, double delta)
 
 void DiskPair::Bridge(double dist, double delta)
 {
-    double Lc = 2*P1->Lc*P2->Lc/(P2->Lc+P1->Lc);
+    double Lc = (P2->Lc+P1->Lc)==0 ? 0 : 2*P1->Lc*P2->Lc/(P2->Lc+P1->Lc);
     double l  = P1->l;
-    double beta = 2*P1->bbeta*P2->bbeta/(P1->bbeta+P2->bbeta);
-    double epsilon = 2*P1->epsilon*P2->epsilon/(P1->epsilon+P2->epsilon);
+    double beta = (P1->bbeta+P2->bbeta)==0 ? 0 : 2*P1->bbeta*P2->bbeta/(P1->bbeta+P2->bbeta);
+    double epsilon = (P1->epsilon+P2->epsilon)==0 ? 0 : 2*P1->epsilon*P2->epsilon/(P1->epsilon+P2->epsilon);
     double s = P1->s;
+    // std::cout<<Lc<<" "<<s<<" "<<l<<" "<<-delta<<" "<<beta*4.0*M_PI*(P1->R*P2->R/(P1->R+P2->R))<<std::endl;
     if(Lc>-delta)
     {
         double Fb = std::fabs(beta*4.0*M_PI*(P1->R*P2->R/(P1->R+P2->R))*epsilon/(s*s)*(Lc+delta)/l);

@@ -69,7 +69,7 @@ int main (int argc, char **argv) try
     
     size_t Nproc = 12;
     double nu = 0.01;
-    int Rn = 5;
+    int Rn = 10;
     double R = Rn*1.0;
     double ppl = 3*R;
     double ratio = 10.0;
@@ -95,7 +95,7 @@ int main (int argc, char **argv) try
     std::cout<<"RR = "<<RR<<std::endl;
     double rho = 1.0;
     double rhos = 2.7;
-    double Ga = 2.0;
+    double Ga = 10.0;
     double gy = Ga*Ga*nu*nu/((8*R*R*R)*(rhos/rho-1));
     std::cout<<"gy = "<<gy<<std::endl;
     //nu = 1.0/30.0;
@@ -153,8 +153,8 @@ int main (int argc, char **argv) try
         py = sy + j*pl;
         for(int i=0; i<pnx; ++i)
         {
-            // Vec3_t dxr(random(-0.3*R,0.3*R),random(-0.3*R,0.3*R),0.0);
-            Vec3_t dxr(0.0,0.0,0.0);
+            Vec3_t dxr(random(-0.5*R,0.5*R),random(-0.5*R,0.5*R),0.0);
+            // Vec3_t dxr(0.0,0.0,0.0);
             px = 0.5*pl+i*pl;
             pos = px, py , 0;
             dom.Particles.push_back(DEM::Disk(-pnum, pos+dxr, v, w, rhos, R, dom.dtdem));
@@ -178,11 +178,14 @@ int main (int argc, char **argv) try
         dom.Particles[ip].A = 2e-20/((ratiol/ratiot)*(ratiol/ratiot));
         dom.Particles[ip].kappa = 1e9*ratiol;
         dom.Particles[ip].Z = 1e-11*ratiot*ratiot/ratiol;
-        dom.Particles[ip].bbeta = 0.3;
-        dom.Particles[ip].epsilon = 2.05769e-20/((ratiol/ratiot)*(ratiol/ratiot));
-        dom.Particles[ip].s = 200e-9/ratiol;
-        dom.Particles[ip].Lc = 100e-9/ratiol;
-        dom.Particles[ip].l = 3.04e-10/ratiol;
+        // dom.Particles[ip].A = 2e-20/((ratiol/ratiot)*(ratiol/ratiot));
+        // dom.Particles[ip].kappa = 1e8*ratiol;
+        // dom.Particles[ip].Z = 1e-11*ratiot*ratiot/ratiol;
+        // dom.Particles[ip].bbeta = 0.3;
+        // dom.Particles[ip].epsilon = 2.05769e-20/((ratiol/ratiot)*(ratiol/ratiot));
+        // dom.Particles[ip].s = 200e-9/ratiol;
+        // dom.Particles[ip].Lc = 100e-9/ratiol;
+        // dom.Particles[ip].l = 3.04e-10/ratiol;
         dom.Particles[ip].VdwCutoff = std::sqrt(dom.Particles[ip].A/(12.0*dom.Particles[ip].Z*dom.Particles[ip].kappa));
         dom.Particles[ip].D = 2;
         if(dom.Particles[ip].IsFree())
