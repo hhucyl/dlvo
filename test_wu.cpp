@@ -10,6 +10,12 @@ struct myUserData
     double rhos;
     double rho1;
     double rho2;
+    double pl;
+    double sy;
+    int pnx;
+    int pny;
+    double ratiol;
+    double ratiot;
 };
 void Setup(LBM::Domain &dom, void *UD)
 {
@@ -53,17 +59,64 @@ void Setup(LBM::Domain &dom, void *UD)
     }
 
     //fix the moving particle if leave the domain in y direction
+    int ipp = -1;
     #pragma omp parallel for schedule(static) num_threads(dom.Nproc)
     for(size_t ip=0; ip<dom.Particles.size(); ++ip)
     {
         if(!dom.Particles[ip].IsFree()) continue;
-        if(dom.Particles[ip].X(1)<-3*R)
+        if(dom.Particles[ip].X(1)<-3*dat.R)
         {
             dom.Particles[ip].V = 0.0;
             dom.Particles[ip].W = 0.0;
             dom.Particles[ip].FixVeloc();
 
         }
+        if(dom.Particles[ip].X(1)>ny-1-6*dat.R-dat.pl)
+        {
+            #pragma omp atomic
+            ipp++;
+        }
+    }
+    // std::cout<<ipp<<std::endl;
+    if(ipp<0)
+    {
+        double py = dat.sy + (dat.pny-1)*dat.pl;
+        Vec3_t pos(0,0,0);
+        Vec3_t v(0,0,0);
+        Vec3_t w(0,0,0);
+        int pnum = dom.Particles.size();
+        for(int i=0; i<dat.pnx; ++i)
+        {
+            // Vec3_t dxr(random(-0.3*R,0.3*R),random(-0.3*R,0.3*R),0.0);
+            Vec3_t dxr(0.0,0.0,0.0);
+            double px = 0.5*dat.pl+i*dat.pl;
+            pos = px, py , 0;
+            dom.Particles.push_back(DEM::Disk(-pnum, pos+dxr, v, w, dat.rhos, dat.R, dom.dtdem));
+            // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
+            pnum++;
+            dom.Particles.back().Ff =  0.0, -M_PI*dat.R*dat.R*(dat.rhos/1.0-1)*dat.g,0.0, 0.0;
+            // dom.Particles.back().Ff = 0.0, 0.0, 0.0;
+            dom.Particles.back().Kn = 1.0;
+            dom.Particles.back().Gn = 1.0;
+            dom.Particles.back().Kt = 0.0;
+            dom.Particles.back().Mu = 0.0;
+            dom.Particles.back().Eta = 0.0;
+            dom.Particles.back().Beta = 0.0;
+            dom.Particles.back().A = 2e-20/((dat.ratiol/dat.ratiot)*(dat.ratiol/dat.ratiot));
+            dom.Particles.back().kappa = 1e9*dat.ratiol;
+            dom.Particles.back().Z = 1e-11*dat.ratiot*dat.ratiot/dat.ratiol;
+            dom.Particles.back().bbeta = 0.3;
+            dom.Particles.back().epsilon = 2.05769e-20/((dat.ratiol/dat.ratiot)*(dat.ratiol/dat.ratiot));
+            dom.Particles.back().s = 200e-9/dat.ratiol;
+            dom.Particles.back().Lc = 100e-9/dat.ratiol;
+            dom.Particles.back().l = 3.04e-10/dat.ratiol;
+            dom.Particles.back().VdwCutoff = std::sqrt(dom.Particles.back().A/(12.0*dom.Particles.back().Z*dom.Particles.back().kappa));
+            dom.Particles.back().D = 2;
+        
+            
+            dom.Particles.back().Rh = 0.8*dat.R;
+        }
+    
     }
 
 }
@@ -102,17 +155,17 @@ int main (int argc, char **argv) try
 {
     std::srand((unsigned)time(NULL));    
     
-    size_t Nproc = 12;
+    size_t Nproc = 1;
     double nu = 0.01;
     int Rn = 5;
     double R = Rn*1.0;
     double ppl = 3*R;//60.0/5.0*R;
     double ratio = 10.0;
     double RR = ratio*R;
-    int Pnx = 5;//big particle number
-    int Pny = 3; 
-    int pnx = 10;//small particle number
-    int pny = 10; 
+    int Pnx = 3;//big particle number
+    int Pny = 1; 
+    int pnx = 3;//small particle number
+    int pny = 3; 
     // double vb = 0.01; 
     double pdx = 0;//gap between big particle
     double pdy = 0;
@@ -131,9 +184,11 @@ int main (int argc, char **argv) try
     std::cout<<"RR = "<<RR<<std::endl;
     double rho = 1.0;
     double rhos = 2.7;
-    double Ga = 0.0;
+    double Ga = 20.0;
     double gy = Ga*Ga*nu*nu/((8*R*R*R)*(rhos/rho-1));
     std::cout<<"gy = "<<gy<<std::endl;
+    double sy = (Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR + ppl;
+
     //nu = 1.0/30.0;
     std::cout<<nx<<" "<<ny<<" "<<nz<<std::endl;
     LBM::Domain dom(D2Q9,MRT, nu, iVec3_t(nx,ny,nz),dx,dt);
@@ -142,8 +197,13 @@ int main (int argc, char **argv) try
     my_dat.nu = nu;
     my_dat.g = gy;
     my_dat.R = R;
-    my_dat.rho1 = 1.0+1e-4;
+    my_dat.rho1 = 1.0+1e-3;
     my_dat.rho2 = 1.0;
+    my_dat.pl = pl;
+    my_dat.pnx = pnx;
+    my_dat.pny = pny;
+    my_dat.sy = sy;
+    my_dat.rhos = rhos;
     Vec3_t g0(0.0,0.0,0.0);
     dom.Nproc = Nproc;       
 
@@ -185,7 +245,6 @@ int main (int argc, char **argv) try
     // }
 
     //move
-    double sy = (Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR + ppl;
     
     for(int j=0; j<pny; ++j)
     {
