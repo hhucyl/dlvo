@@ -109,16 +109,28 @@ int main (int argc, char **argv) try
     my_dat.vb = vb;
     Vec3_t g0(0.0,0.0,0.0);
     dom.Nproc = Nproc;       
-
+    
+    for(size_t ix=0; ix<nx; ++ix)
+    {
+        dom.IsSolid[ix][0][0] = true;
+    }
     //dom.Isq = true;
     // dom.IsF = false;
     // dom.IsFt = false;
    
     //initial
+    // dom.InitialFromH5("test_cong_0999.h5",g0);
+    // dom.Initial(rho,v0,g0);
+    Initial(dom,dom.UserData);
+    bool iscontinue = false
+
     
     my_dat.rhos = rhos;
     Vec3_t v0(0.0,0.0,0.0);
     dom.dtdem = 0.01*dt;
+
+    if(!iscontinue)
+    {
     //fix
     Vec3_t pos(0.0,0.0,0.0);
     Vec3_t v(0.0,0.0,0.0);
@@ -140,10 +152,7 @@ int main (int argc, char **argv) try
             pnum++;
         }
     }
-    for(size_t ix=0; ix<nx; ++ix)
-    {
-        dom.IsSolid[ix][0][0] = true;
-    }
+    
 
     //move
     double sy = (Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR + ppl;
@@ -162,12 +171,13 @@ int main (int argc, char **argv) try
             pnum++;
         }
     }
+    }
     
 
     std::cout<<"Particles number = "<<dom.Particles.size()<<std::endl;
     for(size_t ip=0; ip<dom.Particles.size(); ++ip)
     {
-        dom.Particles[ip].Ff =  0.0, -M_PI*R*R*(rhos/rho-1)*my_dat.g,0.0, 0.0;
+        
         // dom.Particles[ip].Ff = 0.0, 0.0, 0.0;
         dom.Particles[ip].Kn = 1.0;
         dom.Particles[ip].Gn = 1.0;
@@ -188,6 +198,9 @@ int main (int argc, char **argv) try
         // dom.Particles[ip].l = 3.04e-10/ratiol;
         dom.Particles[ip].VdwCutoff = std::sqrt(dom.Particles[ip].A/(12.0*dom.Particles[ip].Z*dom.Particles[ip].kappa));
         dom.Particles[ip].D = 2;
+        dom.Particles[ip].R = R;
+        dom.Particles[ip].M = M_PI*dom.Particles[ip].R*dom.Particles[ip].R*rhos;
+        dom.Particles[ip].Ff =  0.0, -M_PI*dom.Particles[ip].R*dom.Particles[ip].R*(rhos/rho-1)*my_dat.g,0.0, 0.0;
         if(dom.Particles[ip].IsFree())
         {
             
@@ -203,9 +216,7 @@ int main (int argc, char **argv) try
     }
     
 
-    // dom.InitialFromH5("test_cong_0999.h5",g0);
-    // dom.Initial(rho,v0,g0);
-    Initial(dom,dom.UserData);
+    
 
     double Tf = 2;
     dom.IsF = true;    

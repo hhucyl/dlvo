@@ -97,6 +97,8 @@ void Domain::WriteXDMF(char const * FileKey)
         }
         double *Pposition = NULL;
         double *Ppositionb = NULL;
+        double *PR = NULL;
+        int *PIsFree = NULL;
         double *PVeloc = NULL;
         double *PForce = NULL;
         double *PForceh = NULL;
@@ -104,6 +106,7 @@ void Domain::WriteXDMF(char const * FileKey)
         double *PWb = NULL;
         int *Ptag = NULL;
         int *Plist = NULL;
+        double *PM = NULL;
         // int *PlistPP = NULL;
         // int *PlistPG = NULL;
 
@@ -129,6 +132,9 @@ void Domain::WriteXDMF(char const * FileKey)
             PW = new double[3*NP];
             PWb = new double[3*NP];
             Ptag = new int[NP];
+            PR = new double[NP];
+            PM = new double[NP];
+            PIsFree = new int[NP];
             Plist = new int[NL];
 
             
@@ -141,6 +147,9 @@ void Domain::WriteXDMF(char const * FileKey)
             {
                 DEM::Disk *Pa = &Particles[ip];
                 Ptag[ip] = 1;
+                PR[ip] = Pa->R;
+                PM[ip] = Pa->M;
+                PIsFree[ip] = Pa->IsFree()? 1.0 : -1.0;
                 Pposition[3*ip] = Pa->X(0);
                 Pposition[3*ip+1] = Pa->X(1);
                 Pposition[3*ip+2] = Pa->X(2);
@@ -186,6 +195,9 @@ void Domain::WriteXDMF(char const * FileKey)
                 DEM::Disk *Pa = &GhostParticles[ip];
                 int ipp = ip+GN;
                 Ptag[ipp] = Pa->Ghost ? 1.0 : -1.0;
+                PR[ipp] = Pa->R;
+                PM[ipp] = Pa->M;
+                PIsFree[ipp] = Pa->IsFree() ? 1 : -1;
                 Pposition[3*ipp] = Pa->X(0);
                 Pposition[3*ipp+1] = Pa->X(1);
                 Pposition[3*ipp+2] = Pa->X(2);
@@ -305,10 +317,23 @@ void Domain::WriteXDMF(char const * FileKey)
         dsname.Printf("Nz");
         H5LTmake_dataset_int(file_id,dsname.CStr(),1,dims,N);
         if(Particles.size()>0)
-        {
-            dims[0] = NP;
+        {   
+            dims[0] = 1;
+            N[0] = (int) Particles.size();
+            dsname.Printf("Np");
+            H5LTmake_dataset_int(file_id,dsname.CStr(),1,dims,N);
+            dims[0] = NP;            
             dsname.Printf("PTag");        
             H5LTmake_dataset_int(file_id,dsname.CStr(),1,dims,Ptag);
+            dims[0] = NP;            
+            dsname.Printf("PIsFree");        
+            H5LTmake_dataset_int(file_id,dsname.CStr(),1,dims,PIsFree);
+            dims[0] = NP;            
+            dsname.Printf("PR");        
+            H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,PR);
+            dims[0] = NP;            
+            dsname.Printf("PM");        
+            H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,PM);
             dims[0] = 3*NP;
             dsname.Printf("Pposition");        
             H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,Pposition);
@@ -363,6 +388,9 @@ void Domain::WriteXDMF(char const * FileKey)
         if(Particles.size()>0)
         {
             delete [] Ptag;
+            delete [] PR;
+            delete [] PM;
+            delete [] PIsFree;
             delete [] Pposition;
             delete [] Ppositionb;
             delete [] PVeloc;

@@ -508,14 +508,14 @@ inline void Domain::adddiskIBM_sub_periodic(DEM::Disk *Pa, DEM::Disk *GPa, int i
                 r_temp = gr;
             }
             Vec3_t temp = 1.0*Rho[ix][iy][0]*FIBM[im]*KernelIBM1(r_temp(0),ix)*KernelIBM1(r_temp(1),iy)/(dx*dx)*dS;
-        // #ifdef USE_OMP
-        //     omp_set_lock      (&lck);
-        // #endif
+        #ifdef USE_OMP
+            omp_set_lock      (&lck);
+        #endif
             // Flbm[ix][iy][0] += 1.0*Rho[ix][iy][0]*FIBM[im]*KernelIBM1(r_temp(0),ix)*KernelIBM1(r_temp(1),iy)/(dx*dx)*dS; 
             Flbm[ix][iy][0] += temp; 
-        // #ifdef USE_OMP
-        //     omp_unset_lock      (&lck);
-        // #endif
+        #ifdef USE_OMP
+            omp_unset_lock      (&lck);
+        #endif
         }
     }
     

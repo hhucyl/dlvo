@@ -85,6 +85,10 @@ inline void Domain::InitialFromH5(char const * TheFileKey, Vec3_t &g0)
     std::cout<<"Fluid Complete"<<std::endl;
     //particle
     int NP = Particles.size(); 
+    int NNp[1];
+    H5LTread_dataset_int(file_id,"/Np",NNp);
+    NP = NNp[0];
+    std::cout<<"dtdem = "<<dtdem<<std::endl;
     if(NP>0)
     {
         double *Ppos = new double[3*NP*2];
@@ -97,14 +101,23 @@ inline void Domain::InitialFromH5(char const * TheFileKey, Vec3_t &g0)
         H5LTread_dataset_double(file_id,"/PW",PW);
         double *PWb = new double[3*NP*2];
         H5LTread_dataset_double(file_id,"/PWb",PWb);
+        int *PIsFree = new int[NP*2];
+        H5LTread_dataset_int(file_id,"/PIsFree",PIsFree);
+        double *PR = new double[NP*2];
+        H5LTread_dataset_double(file_id,"/PR",PR);
+        double *PM = new double[NP*2];
+        H5LTread_dataset_double(file_id,"/PM",PM);
+
         for(int i=0; i<NP; ++i)
-        {
-            DEM::Disk *Pa = &Particles[i];
-            Pa->X = Ppos[3*i], Ppos[3*i+1], Ppos[3*i+2]; 
-            Pa->Xb = Pposb[3*i], Pposb[3*i+1], Pposb[3*i+2]; 
-            Pa->V = Pvec[3*i], Pvec[3*i+1], Pvec[3*i+2];
-            Pa->W = PW[3*i], PW[3*i+1], PW[3*i+2]; 
-            Pa->Wb = PWb[3*i], PWb[3*i+1], PWb[3*i+2];
+        {   
+            Vec3_t pos(Ppos[3*i], Ppos[3*i+1], Ppos[3*i+2]);
+            Vec3_t v(Pvec[3*i], Pvec[3*i+1], Pvec[3*i+2]);
+            Vec3_t w(PW[3*i], PW[3*i+1], PW[3*i+2]);
+            double rho = PM[i]/(M_PI*PR[i]*PR[i]);
+            Particles.push_back(DEM::Disk(-i, pos, v, w, rho, PR[i], dtdem));
+            Particles.back().Xb = Pposb[3*i], Pposb[3*i+1], Pposb[3*i+2]; 
+            Particles.back().Wb = PWb[3*i], PWb[3*i+1], PWb[3*i+2];
+            if(PIsFree[i]<0) Particles.back().FixVeloc();
         }
 
         delete[] Ppos;
@@ -112,6 +125,9 @@ inline void Domain::InitialFromH5(char const * TheFileKey, Vec3_t &g0)
         delete[] Pvec;
         delete[] PW;
         delete[] PWb;
+        delete[] PR;
+        delete[] PIsFree;
+        
     }
 
 

@@ -210,62 +210,67 @@ int main (int argc, char **argv) try
     //dom.Isq = true;
     // dom.IsF = false;
     // dom.IsFt = false;
-   
-    //initial
-    
     my_dat.rhos = rhos;
     Vec3_t v0(0.0,0.0,0.0);
     dom.dtdem = 0.01*dt;
-    //fix
-    Vec3_t pos(0.0,0.0,0.0);
-    Vec3_t pos1(0.0,0.0,0.0);
-    Vec3_t dxp(0.0,0.0,0.0);
-    Vec3_t v(0.0,0.0,0.0);
-    Vec3_t w(0.0,0.0,0.0);
-    double py = 0;
-    double px = 0;
-    int pnum = 0;
-    for(int j=0; j<Pny; ++j)
+    //initial
+    dom.InitialFromH5("test_wu_1_0001.h5",g0);
+    // dom.Initial(rho,v0,g0);
+    // Initial(dom,dom.UserData);
+    // bool iscontinue = false;
+    bool iscontinue = true;
+    
+    
+    
+    if(!iscontinue)
     {
-        py = 0.0 + j*(std::sqrt(3)*RR+pdy) + RR + 1;
-        int temp = j%2==0 ? Pnx : Pnx+1;
-        for(int i = 0; i<temp; ++i)
+        //fix
+        Vec3_t pos(0.0,0.0,0.0);
+        Vec3_t pos1(0.0,0.0,0.0);
+        Vec3_t dxp(0.0,0.0,0.0);
+        Vec3_t v(0.0,0.0,0.0);
+        Vec3_t w(0.0,0.0,0.0);
+        double py = 0;
+        double px = 0;
+        int pnum = 0;
+        for(int j=0; j<Pny; ++j)
         {
-            px = j%2==0 ? (0.5*pdx+RR+i*(2*RR+pdx)) : i*(2*RR+pdx);
-            pos = px, py, 0;
-            dom.Particles.push_back(DEM::Disk(pnum, pos, v, w, rhos, 0.8*RR, dom.dtdem));
-            dom.Particles[pnum].FixVeloc();
-            
-            pnum++;
+            py = 0.0 + j*(std::sqrt(3)*RR+pdy) + RR + 1;
+            int temp = j%2==0 ? Pnx : Pnx+1;
+            for(int i = 0; i<temp; ++i)
+            {
+                px = j%2==0 ? (0.5*pdx+RR+i*(2*RR+pdx)) : i*(2*RR+pdx);
+                pos = px, py, 0;
+                dom.Particles.push_back(DEM::Disk(pnum, pos, v, w, rhos, 0.8*RR, dom.dtdem));
+                dom.Particles[pnum].FixVeloc();
+                
+                pnum++;
+            }
         }
-    }
-    // for(size_t ix=0; ix<nx; ++ix)
-    // {
-    //     dom.IsSolid[ix][0][0] = true;
-    // }
+    
 
-    //move
+        //move
     
-    for(int j=0; j<pny; ++j)
-    {
-        py = sy + j*pl;
-        for(int i=0; i<pnx; ++i)
+        for(int j=0; j<pny; ++j)
         {
-            // Vec3_t dxr(random(-0.3*R,0.3*R),random(-0.3*R,0.3*R),0.0);
-            Vec3_t dxr(0.0,0.0,0.0);
-            px = 0.5*pl+i*pl;
-            pos = px, py , 0;
-            dom.Particles.push_back(DEM::Disk(-pnum, pos+dxr, v, w, rhos, R, dom.dtdem));
-            // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
-            pnum++;
+            py = sy + j*pl;
+            for(int i=0; i<pnx; ++i)
+            {
+                Vec3_t dxr(random(-0.3*R,0.3*R),random(-0.3*R,0.3*R),0.0);
+                // Vec3_t dxr(0.0,0.0,0.0);
+                px = 0.5*pl+i*pl;
+                pos = px, py , 0;
+                dom.Particles.push_back(DEM::Disk(-pnum, pos+dxr, v, w, rhos, R, dom.dtdem));
+                // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
+                pnum++;
+            }
         }
     }
-    
 
     std::cout<<"Particles number = "<<dom.Particles.size()<<std::endl;
     for(size_t ip=0; ip<dom.Particles.size(); ++ip)
     {
-        dom.Particles[ip].Ff =  0.0, -M_PI*R*R*(rhos/rho-1)*my_dat.g,0.0, 0.0;
+        
         // dom.Particles[ip].Ff = 0.0, 0.0, 0.0;
         dom.Particles[ip].Kn = 1.0;
         dom.Particles[ip].Gn = 1.0;
@@ -276,16 +281,19 @@ int main (int argc, char **argv) try
         dom.Particles[ip].A = 2e-20/((ratiol/ratiot)*(ratiol/ratiot));
         dom.Particles[ip].kappa = 1e9*ratiol;
         dom.Particles[ip].Z = 1e-11*ratiot*ratiot/ratiol;
-        dom.Particles[ip].bbeta = 0.3;
-        dom.Particles[ip].epsilon = 2.05769e-20/((ratiol/ratiot)*(ratiol/ratiot));
-        dom.Particles[ip].s = 200e-9/ratiol;
-        dom.Particles[ip].Lc = 100e-9/ratiol;
-        dom.Particles[ip].l = 3.04e-10/ratiol;
+        // dom.Particles[ip].A = 2e-20/((ratiol/ratiot)*(ratiol/ratiot));
+        // dom.Particles[ip].kappa = 1e8*ratiol;
+        // dom.Particles[ip].Z = 1e-11*ratiot*ratiot/ratiol;
+        // dom.Particles[ip].bbeta = 0.3;
+        // dom.Particles[ip].epsilon = 2.05769e-20/((ratiol/ratiot)*(ratiol/ratiot));
+        // dom.Particles[ip].s = 200e-9/ratiol;
+        // dom.Particles[ip].Lc = 100e-9/ratiol;
+        // dom.Particles[ip].l = 3.04e-10/ratiol;
         dom.Particles[ip].VdwCutoff = std::sqrt(dom.Particles[ip].A/(12.0*dom.Particles[ip].Z*dom.Particles[ip].kappa));
         dom.Particles[ip].D = 2;
+        dom.Particles[ip].Ff =  0.0, -dom.Particles[ip].M*(rhos/rho-1)*my_dat.g,0.0, 0.0;
         if(dom.Particles[ip].IsFree())
         {
-            
             dom.Particles[ip].Rh = 0.8*R;
 
         }else{
@@ -297,14 +305,13 @@ int main (int argc, char **argv) try
 
     }
     
+    
 
-    // dom.InitialFromH5("test_cong_0999.h5",g0);
-    dom.Initial(rho,v0,g0);
-    // Initial(dom,dom.UserData);
+    
 
-    double Tf = 1e5;
+    double Tf = 10;
     dom.IsF = true;    
-    double dtout = 1e2;
+    double dtout = 1;
     // periodic in x
     dom.Box = 0.0, nx-1, 0.0;
     dom.modexy = 0;
@@ -313,6 +320,6 @@ int main (int argc, char **argv) try
     // dom.modexy = 1;
     
     //solving
-    dom.SolveIBM( Tf, dtout, "test_wu", Setup, NULL);
+    dom.SolveIBM( Tf, dtout, "test_wu_2", Setup, NULL);
     
 }MECHSYS_CATCH
