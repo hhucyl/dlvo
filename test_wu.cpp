@@ -291,7 +291,7 @@ int main (int argc, char **argv) try
         // dom.Particles[ip].l = 3.04e-10/ratiol;
         dom.Particles[ip].VdwCutoff = std::sqrt(dom.Particles[ip].A/(12.0*dom.Particles[ip].Z*dom.Particles[ip].kappa));
         dom.Particles[ip].D = 2;
-        dom.Particles[ip].Ff =  0.0, -dom.Particles[ip].M*(rhos/rho-1)*my_dat.g,0.0, 0.0;
+        dom.Particles[ip].Ff =  0.0, -M_PI*dom.Particles[ip].R*dom.Particles[ip].R*(rhos/rho-1)*my_dat.g,0.0, 0.0;
         if(dom.Particles[ip].IsFree())
         {
             dom.Particles[ip].Rh = 0.8*R;
