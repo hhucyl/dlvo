@@ -222,11 +222,11 @@ int main (int argc, char **argv) try
     Vec3_t v0(0.0,0.0,0.0);
     dom.dtdem = 0.01*dt;
 	//initial
-    dom.InitialFromH5("test_wu2_0191.h5",g0);
+    // dom.InitialFromH5("test_wu2_0191.h5",g0);
     // dom.Initial(rho,v0,g0);
-	// Initial(dom,dom.UserData);
-    // bool iscontinue = false;
-    bool iscontinue = true;
+	Initial(dom,dom.UserData);
+    bool iscontinue = false;
+    // bool iscontinue = true;
 	
     
     if(!iscontinue)
