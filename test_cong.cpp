@@ -106,7 +106,8 @@ int main (int argc, char **argv) try
     double dx = 1.0;
     double dt = 1.0;
     double ratiol = 10e-6/(2.0*R); //Lr/Ll
-    double ratiot = 1/1; //Tr/Tl     
+    double ratiot = 1e-6; //Tr/Tl
+    double ratiom = 1e-15;     
     std::cout<<"R = "<<R<<std::endl;
     double rho = 1.0;
     double rhos = 2.7;
@@ -125,10 +126,6 @@ int main (int argc, char **argv) try
     Vec3_t g0(0.0,0.0,0.0);
     dom.Nproc = Nproc;       
 
-    //dom.Isq = true;
-    // dom.IsF = false;
-    // dom.IsFt = false;
-   
     //initial
     
     my_dat.rhos = rhos;
@@ -177,8 +174,8 @@ int main (int argc, char **argv) try
     {
         dom.Particles[ip].Ff =  0.0, -M_PI*R*R*(rhos/rho-1)*my_dat.g,0.0, 0.0;
         // dom.Particles[ip].Ff = 0.0, 0.0, 0.0;
-        dom.Particles[ip].Kn = 1.0;
-        dom.Particles[ip].Gn = 1.0;
+        dom.Particles[ip].Kn = 25.0;
+        dom.Particles[ip].Gn = 0.0;
         dom.Particles[ip].Kt = 0.0;
         dom.Particles[ip].Mu = 0.0;
         dom.Particles[ip].Eta = 0.0;
@@ -187,11 +184,11 @@ int main (int argc, char **argv) try
         dom.Particles[ip].D = 2;
         if(dom.Particles[ip].IsFree())
         {
-            dom.Particles[ip].A = 2e-20/((ratiol/ratiot)*(ratiol/ratiot));
+            dom.Particles[ip].A = 3e-20/(((ratiol/ratiot)*(ratiol/ratiot))*ratiom);
             dom.Particles[ip].kappa = 1e9*ratiol;
-            dom.Particles[ip].Z = 1e-11*ratiot*ratiot/ratiol;
+            dom.Particles[ip].Z = 3.97e-11*ratiot*ratiot/(ratiol*ratiom);
             dom.Particles[ip].bbeta = 0.3;
-            dom.Particles[ip].epsilon = 2.05769e-20/((ratiol/ratiot)*(ratiol/ratiot));
+            dom.Particles[ip].epsilon = 2.05769e-20/((ratiol/ratiot)*(ratiol/ratiot)*ratiom);
             dom.Particles[ip].s = 200e-9/ratiol;
             dom.Particles[ip].Lc = 100e-9/ratiol;
             dom.Particles[ip].l = 3.04e-10/ratiol;
