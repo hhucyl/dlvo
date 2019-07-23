@@ -34,6 +34,7 @@ public:
 
     //Methods
     void CalcForce      (double dt);
+    void CalcD          ();
     bool UpdateContacts (double Alpha);
     void LubForce(double dist, double delta);
     void Vdw(double dist, double delta);
@@ -77,7 +78,7 @@ DiskPair::DiskPair(Disk * Dp1, Disk * Dp2)
     Beta= 2.0*ReducedValue(P1->Beta,P2->Beta);
     SFr= OrthoSys::O;
     Fdr= OrthoSys::O;
-    double me = 2.0*ReducedValue(P1->M,P2->M);
+    double me = ReducedValue(P1->M,P2->M);
     if (Gn < 0.0)
     {
         if (fabs(Gn)>1.0) throw new Fatal("CInteractonSphere the restitution coefficient is greater than 1");
@@ -89,6 +90,13 @@ DiskPair::DiskPair(Disk * Dp1, Disk * Dp2)
 #ifdef USE_THREAD
     pthread_mutex_init(&lck,NULL);
 #endif
+}
+
+void DiskPair::CalcD()
+{   
+    double dist  = norm(P2->X - P1->X);
+    delta = P1->R + P2->R - dist;
+    if(P1->X(0)<(-10*P1->R)||P2->X(0)<(-10*P2->R)) delta = -1000;//couple with periodic
 }
 
 void DiskPair::CalcForce(double dt)

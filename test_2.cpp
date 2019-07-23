@@ -87,35 +87,44 @@ int main (int argc, char **argv) try
     dom.Nproc = Nproc;       
 
     //dom.Isq = true;
-    // dom.IsF = false;
-    // dom.IsFt = false;
+    dom.IsF = true;
    
     //initial
     double rho = 1.0;
     double rhos = 2.0;
     my_dat.rhos = rhos;
     Vec3_t v0(0.0,0.0,0.0);
-    Initial(dom,rho,v0,g0);
-    double ddx = 5e-3;
+    // Initial(dom,rho,v0,g0);
+    // bool iscontinue = false;
+    dom.InitialFromH5("test_2_0001.h5",g0);
+    bool iscontinue = true;
+    
+    dom.dtdem = 1*dt;
+
+    if(!iscontinue)
+    {
+    double ddx = 5e-5;
     std::cout<<"real distance "<<ddx*ratiol<<std::endl;
     Vec3_t pos(nx*0.5-R-0.5*ddx,0.1*ny+0.1,0.0);
 
     Vec3_t pos1(nx*0.5+R+0.5*ddx,0.1*ny+0.1,0.0);
     Vec3_t v(0.0,0.0,0.0);
     Vec3_t w(0.0,0.0,0.0);
-    dom.dtdem = 1*dt;
+    
         // std::cout<<pos<<std::endl;
     dom.Particles.push_back(DEM::Disk(-1, pos, v, w, rhos, R, dom.dtdem));
     dom.Particles.push_back(DEM::Disk(-2, pos1, v, w, rhos, R, dom.dtdem));
         
     std::cout<<"Particles number = "<<dom.Particles.size()<<std::endl;
-    for(size_t ip=0; ip<2; ++ip)
+    }
+
+    for(size_t ip=0; ip<dom.Particles.size(); ++ip)
     {
         dom.Particles[ip].Ff = 0.0, M_PI*R*R*rhos*my_dat.g, 0.0;
         dom.Particles[ip].Kn = 1;
-        dom.Particles[ip].Gn = 0.0;
+        dom.Particles[ip].Gn = -0.3;
         dom.Particles[ip].Kt = 0.0;
-        dom.Particles[ip].Mu = 0.0;
+        dom.Particles[ip].Mu = 0.4;
         dom.Particles[ip].Eta = 0.0;
         dom.Particles[ip].Beta = 0.0;
         dom.Particles[ip].Rh = 0.8*R;
@@ -149,12 +158,12 @@ int main (int argc, char **argv) try
     }
 
 
-    double Tf = 2;
+    double Tf = 3e2;
     
-    double dtout = 1;
+    double dtout = 100;
     dom.Box = 0.0, nx-1, 0.0;
     dom.modexy = 0;
     //solving
-    dom.SolveIBM( Tf, dtout, "test_2", NULL, Report);
+    dom.SolveIBM( Tf, dtout, "test_2_1", NULL, Report);
     
 }MECHSYS_CATCH

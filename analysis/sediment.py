@@ -11,7 +11,7 @@ dx = 0
 dy = 0
 ppl = 2*RR
 Nx = Pnx*(dx+2*RR)
-pl = Nx/pnx;
+pl = Nx/pnx
 Ny = (Pny-1)*(3**0.5*RR+dy)+2*RR+ppl+(pny-1)*pl+6*R
 sy = (Pny-1)*(3**0.5*RR+dy)+2*RR+ppl
 
