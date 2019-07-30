@@ -334,6 +334,37 @@ inline void Domain::MoveParticles()
     }
 }
 
+inline void Domain::MoveParticlesWithRestriction(int id, size_t xy)
+{
+    Vec3_t F(0,0,0);
+    double M = 0;
+    
+    
+    for (size_t i=0; i<Particles.size(); i++)
+    {
+        if(Particles[i].Tag!=id) continue;
+        // std::cout<<1<<std::endl;
+        F += Particles[i].Fh + Particles[i].Fc;
+        M += Particles[i].M;
+    }
+    F(xy) = 0;
+    #pragma omp parallel for schedule(static) num_threads(Nproc)
+    for (size_t i=0; i<Particles.size(); i++)
+    {
+        if(Particles[i].Tag==id)
+        {
+            Particles[i].Fc = F/M*Particles[i].M;
+            Particles[i].Fh = 0.0, 0.0, 0.0 ;
+            Particles[i].Translate(dtdem);
+        }else{
+            Particles[i].Translate(dtdem);
+            Particles[i].Rotate(dtdem);
+        }
+    }
+
+
+}
+
 
 inline void Domain::LeaveAndForcedForce()
 {

@@ -28,6 +28,7 @@ SET(PROGS
     test_fine
     test_wu
     test_wu2
+    test_wu3
 )
 
 FOREACH(var ${PROGS})

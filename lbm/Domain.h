@@ -194,12 +194,14 @@ public:
     void LeaveAndForcedForce();
     void GhostPeriodic();
     void MoveParticles();
+    void MoveParticlesWithRestriction(int id, size_t xy);
     void Initial(double rho, Vec3_t &v0,  Vec3_t &g0);
     void InitialFromH5(char const * TheFileKey, Vec3_t &g0);
 
 
     void Solve(double Tf, double dtout, char const * TheFileKey, ptDFun_t ptSetup, ptDFun_t ptReport);
     void SolveIBM(double Tf, double dtout, char const * TheFileKey, ptDFun_t ptSetup, ptDFun_t ptReport);
+    void SolveIBM1(double Tf, double dtout, char const * TheFileKey, ptDFun_t ptSetup, int id, size_t xy, ptDFun_t ptReport);
     void SolveRW(double Tf, double dtout, char const * TheFileKey, ptDFun_t ptSetup, ptDFun_t ptReport);
     void rwsolve_sub(double dt);
     void CheckInside();
