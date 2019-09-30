@@ -32,3 +32,8 @@
 *.app
 
 .vscode
+CMakeFiles
+cmake_install.cmake_install
+CMakeCache.txt
+*.xmf
+*.h5

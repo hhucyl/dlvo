@@ -5,11 +5,11 @@ from matplotlib.patches import Circle
 import sys
 
 prefix = "/media/pzhang/Ubuntu 16.0/"
-prefix = "/home/pzhang/chen/dlvo/"
-prefix = prefix + "test_wu21_"
-num = 1
+prefix = "/home/user/dlvo/"
+prefix = prefix + "test_swi_"
+num = 20
 R = 10
-ratio = 4
+ratio = 8
 RR = ratio*R
 ratiol = 10e-6/(2.0*R)
 ratiot = 1/1   

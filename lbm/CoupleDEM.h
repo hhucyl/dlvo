@@ -61,17 +61,17 @@ inline void Domain::UpdateParticlesContacts()
     {
         DEM::Disk *Pa = &Particles[ip];
         Pa->Fc = 0.0,0.0,0.0;
-        int ixs = std::max(std::floor(Pa->X(0) - ((Pa->eal+Pa->D)+Pa->R) - 3*dx),0.0);
-        int ixe = std::min(std::ceil(Pa->X(0) + ((Pa->eal+Pa->D)+Pa->R) + 3*dx),(double) nx);
-        int iys = std::max(std::floor(Pa->X(1) - ((Pa->eal+Pa->D)+Pa->R) - 3*dx),0.0);
-        int iye = std::min(std::ceil(Pa->X(1) + ((Pa->eal+Pa->D)+Pa->R) + 3*dx),(double) ny);
+        int ixs = std::max(std::floor(Pa->X(0) - ((Pa->eal+Pa->D)+Pa->R) - dx),0.0);
+        int ixe = std::min(std::ceil(Pa->X(0) + ((Pa->eal+Pa->D)+Pa->R) + dx),(double) nx);
+        int iys = std::max(std::floor(Pa->X(1) - ((Pa->eal+Pa->D)+Pa->R) - dx),0.0);
+        int iye = std::min(std::ceil(Pa->X(1) + ((Pa->eal+Pa->D)+Pa->R) + dx),(double) ny);
         for(int ix=ixs; ix<ixe; ++ix)
         for(int iy=iys; iy<iye; ++iy) 
         {
             double x = (double) ix;
             double y = (double) iy;
             Vec3_t CC(x,y,0);
-            double len = DEM::DiskSquare(Pa->X,CC,(1+Pa->eal+Pa->D)+Pa->R,dx);
+            double len = DEM::DiskSquare(Pa->X,CC,(Pa->eal+Pa->D)+Pa->R,dx);
             if (std::fabs(len)<1.0e-12) continue;
             if(Check[ix][iy][0]<0)
             {
@@ -97,17 +97,17 @@ inline void Domain::UpdateParticlesContacts()
         DEM::Disk *Pa = &GhostParticles[ip];
         Pa->Fc = 0.0,0.0,0.0;
         if(!Pa->Ghost) continue;
-        int ixs = std::max(std::floor(Pa->X(0) - ((Pa->eal+Pa->D)+Pa->R) - 3*dx),0.0);
-        int ixe = std::min(std::ceil(Pa->X(0) + ((Pa->eal+Pa->D)+Pa->R) + 3*dx),(double) nx);
-        int iys = std::max(std::floor(Pa->X(1) - ((Pa->eal+Pa->D)+Pa->R) - 3*dx),0.0);
-        int iye = std::min(std::ceil(Pa->X(1) + ((Pa->eal+Pa->D)+Pa->R) + 3*dx),(double) ny);
+        int ixs = std::max(std::floor(Pa->X(0) - ((Pa->eal+Pa->D)+Pa->R) - dx),0.0);
+        int ixe = std::min(std::ceil(Pa->X(0) + ((Pa->eal+Pa->D)+Pa->R) + dx),(double) nx);
+        int iys = std::max(std::floor(Pa->X(1) - ((Pa->eal+Pa->D)+Pa->R) - dx),0.0);
+        int iye = std::min(std::ceil(Pa->X(1) + ((Pa->eal+Pa->D)+Pa->R) + dx),(double) ny);
         for(int ix=ixs; ix<ixe; ++ix)
         for(int iy=iys; iy<iye; ++iy) 
         {
             double x = (double) ix;
             double y = (double) iy;
             Vec3_t CC(x,y,0);
-            double len = DEM::DiskSquare(Pa->X,CC,(1+Pa->eal+Pa->D)+Pa->R,dx);
+            double len = DEM::DiskSquare(Pa->X,CC,(Pa->eal+Pa->D)+Pa->R,dx);
             if (std::fabs(len)<1.0e-12) continue;
             if(Check[ix][iy][0]<0)
             {
