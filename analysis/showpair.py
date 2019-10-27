@@ -6,16 +6,17 @@ import sys
 
 prefix = "/media/pzhang/Ubuntu 16.0/"
 prefix = "/home/user/dlvo/"
-prefix = prefix + "test_swi_"
-num = 20
+prefix = prefix + "test_swi1_"
+num = 23
 R = 10
-ratio = 8
+ratio = 5
 RR = ratio*R
 ratiol = 10e-6/(2.0*R)
 ratiot = 1/1   
 A = 3e-20/((ratiol/ratiot)*(ratiol/ratiot))
 
 name = prefix + str(num).zfill(4) + ".h5"
+print name
 f = h5.File(name)
 Np = f['Np'][0]
 Nx = f['Nx'][0]
