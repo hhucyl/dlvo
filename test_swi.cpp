@@ -149,24 +149,25 @@ void Setup(LBM::Domain &dom, void *UD)
             // std::cout<<igx<<" x "<<ixs<<" "<<ixe<<std::endl;
             // std::cout<<igy<<" y "<<iys<<" "<<iye<<std::endl;
             int N = 0;
-            bool flag = false;
+            bool overlap = false;
             double px,py;
-            do
+            while(true)
             {
-                flag = false;
+                overlap = false;
                 px = random((double)ixs,(double)ixe);
                 py = random((double)iys,(double)iye);
                 pos = px, py , 0;
-                for(int ip=dat.pinit-1; ip<(int)dom.Particles.size(); ++ip)
+                for(int ip=0; ip<(int)dom.Particles.size(); ++ip)
                 {
-                    if(Norm(pos - dom.Particles[ip].X)<2.5*dat.R || Norm(pos - dom.GhostParticles[ip].X)<2.5*dat.R)
+                    if(Norm(pos - dom.Particles[ip].X)<3.0*dat.R || Norm(pos - dom.GhostParticles[ip].X)<3.0*dat.R)
                     {
-                        flag = true;
+                        overlap = true;
                         N += 1;
                         break;
                     }
                 }
-            }while(flag&&N<1000);
+                if(!overlap) break;
+            }
             if(N>1000) throw new Fatal("Cannot find!!!!");
             GridCount[index] += dat.R*4*dat.R;
 			
@@ -174,7 +175,13 @@ void Setup(LBM::Domain &dom, void *UD)
             // double px = 0.5*dat.pl+i*dat.pl;
             pos = px, py , 0;
             // pos = pos +dxr;
-            v = Norm(dat.g0)/(2.0*dat.nu)*(-1.0*((pos(1)-dat.sy-dat.H)*(pos(1)-dat.sy-dat.H)-dat.H*dat.H)), 0,0;
+            // v = Norm(dat.g0)/(2.0*dat.nu)*(-1.0*((pos(1)-dat.sy-dat.H)*(pos(1)-dat.sy-dat.H)-dat.H*dat.H)), 0,0;
+            int ipx = std::round(px);
+            int ipy = std::round(py);
+            ipy = (ipy>(int)ny-1) ? ny-1 : ipy; 
+            ipx = (ipx>(int)nx-1) ? nx-1 : ipx; 
+            ipx = (ipx<0) ? 0 : ipx;
+            v = dom.Vel[ipx][ipy][0]; 
             dom.Particles.push_back(DEM::Disk(-pnum, pos, v, w, dat.rhos, dat.R, dom.dtdem));
             // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
             pnum++;
@@ -272,37 +279,89 @@ int main (int argc, char **argv) try
 {
     std::srand((unsigned)time(NULL));    
     
+
+    char const *infilename = "test_swi_ini.txt";
+    String fn;
+    fn.Printf("%s",infilename);
+    std::fstream ifile(fn.CStr(),std::ios::in);
+    if(ifile.fail()) throw new Fatal("FILE WRONG");
+
     size_t Nproc = 12;
-    double nu = 0.01;
-    int Rn = 10;
-    double R = Rn*1.0;
-    double ppl = 2*R;
-    double ratio = 5;
-    double RR = ratio*R;
-    int Pnx = 3;
-    int Pny = 3; 
-    int pnx = 10;
-    int pny = 8;
-    double pdx = 30;//gap between the large particle
-    double pdy = 30; 
-    double Re = 1e3;
     if(argc>=2) Nproc = atoi(argv[1]); 
+    double nu, Re, R, RR, ppl,pppl, pdx, pdy, ratiol, ratiot, ratiom, rho, rhos, Ga;
+    double Kn, Gn, Kt, Mu, Eta, Beta, A, kappa, Z, D;
+    int GX, GY,pinit;
+    int Pnx, Pny, pnx, pny;
+    ifile>>nu;  ifile.ignore(200,'\n');        
+    ifile>>Re;  ifile.ignore(200,'\n');
+    std::cout<<" nu "<<nu<<" Re "<<Re<<std::endl;
+    ifile>>R;  ifile.ignore(200,'\n');
+    ifile>>RR;  ifile.ignore(200,'\n');
+    ifile>>ppl;  ifile.ignore(200,'\n');
+    ifile>>pppl;  ifile.ignore(200,'\n');
+    std::cout<<" R "<<R<<" RR "<<RR<<" ppl "<<ppl<<" pppl "<<pppl<<std::endl;
+    ifile>>Pnx;  ifile.ignore(200,'\n');
+    ifile>>Pny;  ifile.ignore(200,'\n');
+    ifile>>pnx;  ifile.ignore(200,'\n');
+    ifile>>pny;  ifile.ignore(200,'\n');
+    ifile>>pdx;  ifile.ignore(200,'\n');
+    ifile>>pdy;  ifile.ignore(200,'\n');
+    std::cout<<" Pnx "<<Pnx<<" Pny "<<Pny<<" pnx "<<pnx<<" pny "<<pny<<" pdx "<<pdx<<" pdy "<<pdy<<std::endl;
+    ifile>>ratiol;  ifile.ignore(200,'\n');
+    ifile>>ratiot;  ifile.ignore(200,'\n');
+    ifile>>ratiom;  ifile.ignore(200,'\n');
+    std::cout<<" ratiol "<<ratiol<<" ratiot "<<ratiot<<" ratiom "<<ratiom<<std::endl;
+    ifile>>rho;  ifile.ignore(200,'\n');
+    ifile>>rhos;  ifile.ignore(200,'\n');
+    ifile>>Ga;  ifile.ignore(200,'\n');
+    std::cout<<" rho "<<rho<<" rhos "<<rhos<<" Ga "<<Ga<<std::endl;
+    ifile>>Kn;  ifile.ignore(200,'\n');
+    ifile>>Gn;  ifile.ignore(200,'\n');
+    ifile>>Kt;  ifile.ignore(200,'\n');
+    ifile>>Mu;  ifile.ignore(200,'\n');
+    ifile>>Eta;  ifile.ignore(200,'\n');
+    ifile>>Beta;  ifile.ignore(200,'\n');
+    ifile>>A;  ifile.ignore(200,'\n');
+    ifile>>kappa;  ifile.ignore(200,'\n');
+    ifile>>Z;  ifile.ignore(200,'\n');
+    ifile>>D;  ifile.ignore(200,'\n');
+    std::cout<<" Kn "<<Kn<<" Gn "<<Gn<<" Kt "<<Kt<<" Mu "<<Mu<<" Eta "<<Eta<<" Beta "<<Beta<<" A "<<A<<" kappa "<<kappa<<" Z "<<Z<<" D "<<D<<std::endl;;
+    ifile>>GX;  ifile.ignore(200,'\n');
+    ifile>>GY;  ifile.ignore(200,'\n');
+    ifile>>pinit;  ifile.ignore(200,'\n');
+    std::cout<<" GX "<<GX<<" GY "<<GY<<" pinit "<<pinit<<std::endl;
+
+    // double nu = 0.01;
+    // int Rn = 10;
+    // double R = Rn*1.0;
+    // double ppl = 2*R;
+    // double ratio = 5;
+    // double RR = ratio*R;
+    // int Pnx = 3;
+    // int Pny = 3; 
+    // int pnx = 10;
+    // int pny = 8;
+    // double pdx = 60;//gap between the large particle
+    // double pdy = 60; 
+    // double Re = 1e3;
+
+    
 
     size_t nx = std::ceil(Pnx*(RR*2 + pdx));
     double pl = (double) nx/pnx;
-    std::cout<<"pl "<<pl<<std::endl;
-    std::cout<<"pll "<<ppl + (pny-1)*pl<<std::endl;
-    size_t ny = std::ceil((Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR + ppl + (pny-1)*pl)+ 3*Rn + 1;
+    // std::cout<<"pl "<<pl<<std::endl;
+    // std::cout<<"pll "<<ppl + (pny-1)*pl<<std::endl;
+    double H =  ppl + (pny-1)*pl + pppl + 1;
+    double sy = (Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR;
+    size_t ny = std::ceil(sy + H);
     size_t nz = 1;
     double dx = 1.0;
     double dt = 1.0;
-    double ratiol = 1e-6; //Lr/Ll
-    double ratiot = 1e-8; //Tr/Tl
-    double ratiom = 1e-15; //Mr/Ml     
-    std::cout<<"R = "<<R<<std::endl;
-    std::cout<<"RR = "<<RR<<std::endl;
-    double H =  ppl + (pny-1)*pl +6*Rn + 1;
-    double sy = (Pny-1)*(std::sqrt(3)*RR+pdy) + 2*RR + ppl;
+    // double ratiol = 1e-6; //Lr/Ll
+    // double ratiot = 1e-8; //Tr/Tl
+    // double ratiom = 1e-15; //Mr/Ml
+    
+    
     std::cout<<"H = "<<H<<std::endl;
     std::cout<<"sy = "<<sy<<std::endl;
 
@@ -310,9 +369,9 @@ int main (int argc, char **argv) try
     double vmax = nu*Re/H*1.5;
     std::cout<<"vmax "<<vmax<<std::endl;
     
-    double rho = 1.0;
-    double rhos = 2.7;
-    double Ga = 100.0;
+    // double rho = 1.0;
+    // double rhos = 2.7;
+    // double Ga = 100.0;
     double gy = Ga*Ga*nu*nu/((8*R*R*R)*(rhos/rho-1));
     std::cout<<"gy = "<<gy<<std::endl;
     //nu = 1.0/30.0;
@@ -321,8 +380,8 @@ int main (int argc, char **argv) try
     myUserData my_dat;
     dom.UserData = &my_dat;
     my_dat.pinit = pnx*pny*0.5;
-    my_dat.GX = 3;
-    my_dat.GY = 2;
+    my_dat.GX = GX;
+    my_dat.GY = GY;
     my_dat.nu = nu;
     my_dat.g = gy;
     my_dat.R = R;
@@ -337,16 +396,16 @@ int main (int argc, char **argv) try
     my_dat.ratiol = ratiol;
     my_dat.ratiot = ratiot;
     my_dat.ratiom = ratiom;
-    my_dat.Kn = 50;
-    my_dat.Gn = 0;
-    my_dat.Kt = 0;
-    my_dat.Mu = 0;
-    my_dat.Eta = 0;
-    my_dat.Beta = 0;
-    my_dat.A = 3e-20/((ratiol/ratiot)*(ratiol/ratiot)*ratiom);
-    my_dat.kappa = 1e9*ratiol;
-    my_dat.Z = 3.97e-11*ratiot*ratiot/(ratiol*ratiom);
-    my_dat.D = 2;
+    my_dat.Kn = Kn;
+    my_dat.Gn = Gn;
+    my_dat.Kt = Kt;
+    my_dat.Mu = Mu;
+    my_dat.Eta = Eta;
+    my_dat.Beta = Beta;
+    my_dat.A = A/((ratiol/ratiot)*(ratiol/ratiot)*ratiom);
+    my_dat.kappa = kappa*ratiol;
+    my_dat.Z = Z*ratiot*ratiot/(ratiol*ratiom);
+    my_dat.D = D;
     // std::cout<<ipp<<std::endl;
 
 
@@ -356,7 +415,7 @@ int main (int argc, char **argv) try
     dom.dtdem = 0.01*dt;
     
     //initial
-    // dom.InitialFromH5("test_swi1_0017.h5",g0);
+    // dom.InitialFromH5("test_swi1_0007.h5",g0);
     // dom.Initial(rho,v0,g0);
     Initial(dom,dom.UserData);
     bool iscontinue = false;
@@ -393,23 +452,41 @@ int main (int argc, char **argv) try
         //move
         
         
-        for(int j=0; j<pny; ++j)
-        {
-            py = sy + j*pl;
-            for(int i=0; i<pnx; ++i)
+        // for(int j=0; j<pny; ++j)
+        // {
+        //     py = sy + j*pl;
+        //     for(int i=0; i<pnx; ++i)
+        //     {
+        //         Vec3_t dxr(random(-1.0*R,1.0*R),random(-1.0*R,1.0*R),0.0);
+        //         // Vec3_t dxr(0.0,0.0,0.0);
+        //         px = 0.5*pl+i*pl;
+        //         pos = px, py , 0;
+        //         pos = pos+dxr;
+        //         v = Norm(g0)/(2.0*nu)*(-1.0*((pos(1)-sy-H)*(pos(1)-sy-H)-H*H)), 0,0;
+        //         dom.Particles.push_back(DEM::Disk(-pnum, pos, v, w, rhos, R, dom.dtdem));
+        //         // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
+        //         pnum++;
+        //     }
+        // }
+
+        
+        
+        
+            
+            for(int i=0; i< pnx*pny; ++i)
             {
-                Vec3_t dxr(random(-0.5*R,0.5*R),random(-0.5*R,0.5*R),0.0);
-                // Vec3_t dxr(0.0,0.0,0.0);
-                px = 0.5*pl+i*pl;
-                pos = px, py , 0;
-                pos = pos+dxr;
+                double x;
+                double y;
+                ifile>>x>>y;
+                pos = x,y+sy,0;
                 v = Norm(g0)/(2.0*nu)*(-1.0*((pos(1)-sy-H)*(pos(1)-sy-H)-H*H)), 0,0;
                 dom.Particles.push_back(DEM::Disk(-pnum, pos, v, w, rhos, R, dom.dtdem));
-                // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
                 pnum++;
+                // std::cout<<x<<" "<<y<<std::endl;
+
             }
-        }
-        
+       
+
     }
     
 
