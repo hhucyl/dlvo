@@ -159,6 +159,7 @@ void Setup(LBM::Domain &dom, void *UD)
                 pos = px, py , 0;
                 for(int ip=0; ip<(int)dom.Particles.size(); ++ip)
                 {
+                    if(pos(0)<0 || pos(1)<0) continue;
                     if(Norm(pos - dom.Particles[ip].X)<3.0*dat.R || Norm(pos - dom.GhostParticles[ip].X)<3.0*dat.R)
                     {
                         overlap = true;

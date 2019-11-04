@@ -58,7 +58,8 @@ Eta = 0
 Beta = 0
 A = 3e-20
 kappa = 1e9
-Z = 3.97e-11
+fi = 15*5.4
+Z = 9.22e-11*np.tanh(fi/103.0)*np.tanh(fi/103.0)
 D = 2
 
 f.write(str(Kn)+"\tKn\n")
@@ -87,7 +88,6 @@ print("Z ",Z)
 
 
 nx = np.ceil(Pnx*(RR*2 + pdx))
-ppl = 2*R
 pl = nx/pnx
 H =  ppl + (pny-1)*pl + pppl + 1
 ll = R*1.2
@@ -123,7 +123,7 @@ for i in range(pnx*pny):
     cir = Circle(xy=(ppx[i],ppy[i]),radius=R,alpha=0.2)
     ax.add_patch(cir)
 
-
+print('N ',N)
 
 plt.plot([0,nx-1],[0,0],'k')
 plt.plot([0,nx-1],[H,H],'k')
