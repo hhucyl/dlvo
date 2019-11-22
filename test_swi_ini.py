@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from matplotlib.patches import Circle
 
-fn = "test_swi_ini.txt"
+fn = "test_swi_ini_f_e_35.txt"
 f = open(fn,"w")
 nu = 0.01
 Re = 1e3
@@ -44,21 +44,21 @@ f.write(str(ratiom)+"\tratiom\n")
 
 rho = 1.0
 rhos = 2.7
-Ga = 100.0
+Ga = 10.0
 
 f.write(str(rho)+"\trho\n")
 f.write(str(rhos)+"\trhos\n")
 f.write(str(Ga)+"\tGa\n")
 
 Kn = 50
-Gn = 0
-Kt = 0
-Mu = 0
+Gn = -0.3
+Kt = 10
+Mu = 0.4
 Eta = 0
 Beta = 0
 A = 3e-20
 kappa = 1e9
-fi = 15*5.4
+fi = 35*5.4
 Z = 9.22e-11*np.tanh(fi/103.0)*np.tanh(fi/103.0)
 D = 2
 

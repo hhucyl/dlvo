@@ -56,6 +56,7 @@ inline void Domain::UpdateParticlesContacts()
     ListofContacts.clear();
     // std::set<std::pair<int,int>> myset_privatepp[Nproc];
     std::set<std::pair<int,int>> myset_private[Nproc];
+    std::map<std::pair<int,int>, std::pair<int,int>> grid_pair[Nproc];
     #pragma omp parallel for schedule(static) num_threads(Nproc)
     for(int ip=0; ip<(int)Particles.size(); ++ip)
     {
@@ -83,7 +84,8 @@ inline void Domain::UpdateParticlesContacts()
                 std::pair<int,int> temp(ip1,ip2);
                 // myset_privatepp[omp_get_thread_num()].insert(temp);
                 myset_private[omp_get_thread_num()].insert(temp);
-                
+                std::pair<int,int> temp1(ix,iy);
+                grid_pair[omp_get_thread_num()][temp1] = temp;
             }
         }
     }
@@ -120,6 +122,8 @@ inline void Domain::UpdateParticlesContacts()
                 std::pair<int,int> temp(ip1,ip2);
                 // myset_privatepg[omp_get_thread_num()].insert(temp);
                 myset_private[omp_get_thread_num()].insert(temp);
+                std::pair<int,int> temp1(ix,iy);
+                grid_pair[omp_get_thread_num()][temp1] = temp;
                 
             }
         }
@@ -127,7 +131,10 @@ inline void Domain::UpdateParticlesContacts()
     // join_contactlist_sub(myset_privatepg,ListofContactsPG);
     join_contactlist_sub(myset_private,ListofContacts);
 
-    
+    for(size_t i=0; i<Nproc; ++i)
+    {
+        GridPair.insert(grid_pair[i].begin(),grid_pair[i].end());
+    }
 }
 
 inline void Domain::update_pair_sub(DEM::DiskPair* pair, DEM::Disk* P1, DEM::Disk* P2)

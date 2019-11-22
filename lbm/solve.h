@@ -158,6 +158,10 @@ inline void Domain::SolveIBM(double Tf, double dtout, char const * TheFileKey, p
         BounceBack(false);
         CalcProps();
         // std::cout<<std::boolalpha<<GhostParticles[0].Ghost<<std::endl;
+
+        //trace particle
+        If(IsRW) rwsolve_sub(dt);
+
         Time += 1;
     }
     printf("%s  Final CPU time       = %s\n",TERM_CLR2, TERM_RST);
@@ -352,14 +356,121 @@ inline void Domain::rwsolve_sub(double dt)
         RWP->Leave(modexy,Box);
         int ix = std::round(RWP->X(0));
         int iy = std::round(RWP->X(1));
-        if(Gamma[ix][iy][0]>1e-9 && Check[ix][iy][0]>0) 
+        if(Check[ix][iy][0]>0) 
         {
             int ip = Check[ix][iy][0];
-            if(Norm(Particles[ip].X-RWP->X)<=Particles[ip].Rh && Norm(Particles[ip].Xb-RWP->Xb)>Particles[ip].Rh)
+            DEM::Disk* Pa = &Particles[ip];
+            DEM::Disk* GPa = &GhostParticles[ip];
+            if(Norm(Pa->X-RWP->X)<=Pa->Rh) 
             {
-                RWP->Reflect(Particles[ip].X,Particles[ip].Rh);
-                RWP->Leave(modexy,Box);
+                Vec3_t Xi(0,0,0);
+                RWP->FindIntersectV(Pa->X,Pa->V,Pa->Rh,RWP->X,RWP->Xb,Xi);
+                double dt = Norm(Xi-RWP->Xb)/Norm(RWP->X-RWP->Xb);
+                // Vec3_t tmp;
+                // Rotation(Pa->W,Pa->Q,tmp);     
+                // Vec3_t VelPt   = Pa->V + cross(tmp,Xi);
+                Vec3_t VelPt   = Pa->V;
+                bool IsIn = false;
+                do{
+                    IsIn = false;
+                    RWP->Move(VelPt,dt);
+                    RWP->Leave(modexy,Box);
+                    if(Norm(Pa->X-RWP->X)<=Pa->Rh && !IsIn)
+                    {
+                        IsIn = true;
+                    }
+                    if(Norm(GPa->X-RWP->X)<=GPa->Rh && !IsIn)
+                    {
+                        IsIn = true;
+                    }
+                    int ix = std::round(RWP->X(0));
+                    int iy = std::round(RWP->X(1));
+                    std::pair<int,int> temp(ix,iy);
+                    if(GridPair.count(temp)>0 && !IsIn)
+                    {
+                        int ip1 = GridPair[temp].first;
+                        int ip2 = GridPair[temp].second;
+                        DEM::Disk *P1 = &Particles[ip1];
+                        DEM::Disk *GP1 = &GhostParticles[ip1];
+                        DEM::Disk *P2 = &Particles[ip2];
+                        DEM::Disk *GP2 = &GhostParticles[ip2];
+                        if(Norm(P1->X-RWP->X)<=P1->Rh && !IsIn)
+                        {
+                            IsIn = true;
+                        }
+                        if(Norm(GP1->X-RWP->X)<=GP1->Rh && !IsIn)
+                        {
+                            IsIn = true;
+                        }
+                        if(Norm(P2->X-RWP->X)<=P2->Rh && !IsIn)
+                        {
+                            IsIn = true;
+                        }
+                        if(Norm(GP2->X-RWP->X)<=GP2->Rh && !IsIn)
+                        {
+                            IsIn = true;
+                        }
+                         
+                    }
+                        
+                    
+                }while(IsIn)
+            }
 
+            if(Norm(GPa->X-RWP->X)<=GPa->Rh) 
+            {
+                Vec3_t Xi(0,0,0);
+                RWP->FindIntersectV(GPa->X,GPa->V,GPa->Rh,RWP->X,RWP->Xb,Xi);
+                double dt = Norm(Xi-RWP->Xb)/Norm(RWP->X-RWP->Xb);
+                // Vec3_t tmp;
+                // Rotation(GPa->W,GPa->Q,tmp);     
+                // Vec3_t VelPt   = GPa->V + cross(tmp,Xi);
+                Vec3_t VelPt   = GPa->V;
+                bool IsIn = false;
+                do{
+                    IsIn = false;
+                    RWP->Move(VelPt,dt);
+                    RWP->Leave(modexy,Box);
+                    if(Norm(Pa->X-RWP->X)<=Pa->Rh && !IsIn)
+                    {
+                        IsIn = true;
+                    }
+                    if(Norm(GPa->X-RWP->X)<=GPa->Rh && !IsIn)
+                    {
+                        IsIn = true;
+                    }
+                    int ix = std::round(RWP->X(0));
+                    int iy = std::round(RWP->X(1));
+                    std::pair<int,int> temp(ix,iy);
+                    if(GridPair.count(temp)>0 && !IsIn)
+                    {
+                        int ip1 = GridPair[temp].first;
+                        int ip2 = GridPair[temp].second;
+                        DEM::Disk *P1 = &Particles[ip1];
+                        DEM::Disk *GP1 = &GhostParticles[ip1];
+                        DEM::Disk *P2 = &Particles[ip2];
+                        DEM::Disk *GP2 = &GhostParticles[ip2];
+                        if(Norm(P1->X-RWP->X)<=P1->Rh && !IsIn)
+                        {
+                            IsIn = true;
+                        }
+                        if(Norm(GP1->X-RWP->X)<=GP1->Rh && !IsIn)
+                        {
+                            IsIn = true;
+                        }
+                        if(Norm(P2->X-RWP->X)<=P2->Rh && !IsIn)
+                        {
+                            IsIn = true;
+                        }
+                        if(Norm(GP2->X-RWP->X)<=GP2->Rh && !IsIn)
+                        {
+                            IsIn = true;
+                        }
+                         
+                    }
+                        
+                    
+                }while(IsIn)
             }
         }
     }

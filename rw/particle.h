@@ -12,14 +12,25 @@ class Particle
     Particle(Vec3_t &X);
     Vec3_t X;
     Vec3_t Xb;
+    double Dm;
     void Move(std::vector<Vec3_t> &VV, std::vector<int> &idx, double dt);
     void Leave(int modexy, Vec3_t &Box);
     void Reflect(Vec3_t &C, double R);
+    void FindIntersectv(Vec3_t &C, Vec3_t &V; double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //with v
+    void FindIntersect1(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //x in. xb out
+    void FindIntersect2(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //x in. xb in
+    //random
+    
+    std::mt19937 gen;
+    std::normal_distribution<double> normal(0.,1.);
 };
-inline Particle::Particle(Vec3_t &X0)
+inline Particle::Particle(Vec3_t &X0, double dm)
 {
     X = X0;
     Xb = X;
+    Dm = dm;
+    std::random_device rd;
+    gen(rd());
 }
 
 inline void Particle::Move(std::vector<Vec3_t> &VV, std::vector<int> &idx, double dt)
@@ -40,7 +51,14 @@ inline void Particle::Move(std::vector<Vec3_t> &VV, std::vector<int> &idx, doubl
     // std::cout<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<std::endl;
     // std::cout<<V(0)<<"    "<<V(1)<<std::endl;
     Xb = X;
-    X = X+V*dt;    
+    Vec3_t e(normal(gen),normal(gen),0.);
+    X = X+V*dt+std::sqrt(2*Dm*dt)*e;    
+}
+
+inline void Particle::Move1(Vec3_t &V, double dt)
+{
+    Vec3_t e(normal(gen),normal(gen),0.);
+    X = X+V*dt+std::sqrt(2*Dm*dt)*e;    
 }
 
 inline void Particle::Leave(int modexy, Vec3_t &Box)
@@ -64,6 +82,110 @@ inline void Particle::Leave(int modexy, Vec3_t &Box)
     
 
 
+}
+
+inline void Particle::FindIntersectV(Vec3_t &C, Vec3_t &V, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi)
+{
+    double a = Xb(0)-C(0);
+    double b = X(0)-Xb(0)-V(0);
+    double c = Xb(1)-C(1);
+    double d = X(1)-Xb(1)-V(1);
+    double AA = b*b + d*d;
+    double BB = 2*(a*b+c*d);
+    double CC = a*a + c*c - R*R;
+    double Delta = BB*BB-4.0*AA*CC;
+    if(Delta>0)
+    {
+        double q;
+        double q1 = (-BB+std::sqrt(Delta))/(2.0*AA);
+        double q2 = (-BB-std::sqrt(Delta))/(2.0*AA);
+        bool flag1 = q1>=0 && q1-1<1e-12;
+        bool flag2 = q2>=0 && q2-1<1e-12;
+        if(flag1)
+        {
+            q = q1;
+        }else{
+            if(flag2)
+            {
+                q = q2;
+            }else{
+                std::cout<<q2<<" "<<X<<" "<<Xb<<" "<<"ERROR IN RWPARTICLE FindIntersectV!!!"<<std::endl;
+            }
+        }
+        // std::cout<<"q = "<<q<<std::endl;
+        Xi = X(0)+q*(Xb(0)-X(0)),Xb(1)+q*(Xb(1)-X(1)),0.0;
+    }else{
+        throw new Fatal("WRONG IN DELTA!!!!!");    
+    }
+
+}
+
+inline void Particle::FindIntersect1(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi)
+{
+    double L1 = Norm(X-Xb);
+    double L2 = Norm(X-C);
+    double Dot = (X(0)-C(0))*(Xb(0)-X(0))+(X(1)-C(1))*(Xb(1)-X(1));
+    double AA = L1*L1;
+    double BB = 2.0*Dot;
+    double CC = L2*L2 - R*R;
+    double Delta = BB*BB-4.0*AA*CC;
+    if(Delta>0)
+    {
+        double q;
+        double q1 = (-BB+std::sqrt(Delta))/(2.0*AA);
+        double q2 = (-BB-std::sqrt(Delta))/(2.0*AA);
+        bool flag1 = q1>=0 && q1-1<1e-12;
+        bool flag2 = q2>=0 && q2-1<1e-12;
+        if(flag1)
+        {
+            q = q1;
+        }else{
+            if(flag2)
+            {
+                q = q2;
+            }else{
+                std::cout<<q2<<" "<<X<<" "<<Xb<<" "<<"ERROR IN RWPARTICLE REFLECT!!!"<<std::endl;
+            }
+        }
+        // std::cout<<"q = "<<q<<std::endl;
+        Xi = X(0)+q*(Xb(0)-X(0)),Xb(1)+q*(Xb(1)-X(1)),0.0;
+    }else{
+        throw new Fatal("WRONG IN DELTA!!!!!");    
+    }
+}
+
+inline void Particle::FindIntersect2(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi)
+{
+    double L1 = Norm(X-Xb);
+    double L2 = Norm(X-C);
+    double Dot = (X(0)-C(0))*(Xb(0)-X(0))+(X(1)-C(1))*(Xb(1)-X(1));
+    double AA = L1*L1;
+    double BB = 2.0*Dot;
+    double CC = L2*L2 - R*R;
+    double Delta = BB*BB-4.0*AA*CC;
+    if(Delta>0)
+    {
+        double q;
+        double q1 = (-BB+std::sqrt(Delta))/(2.0*AA);
+        double q2 = (-BB-std::sqrt(Delta))/(2.0*AA);
+        bool flag1 = q1>=0;
+        bool flag2 = q2>=0;
+        if(flag1)
+        {
+            q = q1;
+        }else{
+            if(flag2)
+            {
+                q = q2;
+            }else{
+                std::cout<<q2<<" "<<X<<" "<<Xb<<" "<<"ERROR IN RWPARTICLE REFLECT!!!"<<std::endl;
+            }
+        }
+        // std::cout<<"q = "<<q<<std::endl;
+        Xi = Xb(0)+q*(X(0)-Xb(0)),Xb(1)+q*(X(1)-Xb(1)),0.0;
+    }else{
+        throw new Fatal("WRONG IN DELTA!!!!!");    
+    }
 }
 
 inline void Particle::Reflect(Vec3_t &C, double R)
