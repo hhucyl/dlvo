@@ -2,35 +2,83 @@
 #define RW_PARTICLE_H
 
 #include <mechsys/linalg/matvec.h>
-
+#include<random>
 
 namespace RW
 {
 class Particle
 {
     public:
-    Particle(Vec3_t &X);
+    Particle(Vec3_t &X, double dm);
     Vec3_t X;
     Vec3_t Xb;
+    Vec3_t er; //for adsorption
+    Vec3_t O; //for adsorption
+    double Rh; //for adsorption
     double Dm;
+
+    bool AD; //whether adsorped by the solid surface
+    double Pa; //adsorption probability
+    double Pd; //desorption probability
+
+    int ip;
     void Move(std::vector<Vec3_t> &VV, std::vector<int> &idx, double dt);
+    void Move1(Vec3_t &V, double dt);
+    void Move2(Vec3_t &V, double dt);
     void Leave(int modexy, Vec3_t &Box);
+    void LeaveReflect(int modexy1, Vec3_t &Box1);
     void Reflect(Vec3_t &C, double R);
-    void FindIntersectv(Vec3_t &C, Vec3_t &V; double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //with v
+    void FindIntersectV(Vec3_t &C, Vec3_t &V, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //with v
     void FindIntersect1(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //x in. xb out
     void FindIntersect2(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //x in. xb in
+
+    void Adsorption(int iip);
+    void Desorption();
+
     //random
     
     std::mt19937 gen;
-    std::normal_distribution<double> normal(0.,1.);
 };
-inline Particle::Particle(Vec3_t &X0, double dm)
+inline Particle::Particle(Vec3_t &X0, double dm): gen(std::random_device()())
 {
     X = X0;
     Xb = X;
     Dm = dm;
-    std::random_device rd;
-    gen(rd());
+    AD = false;
+    ip = -1;
+    Pa = -1.0;
+    Pd = -1.0;
+}
+
+inline void Particle::Adsorption(int iip)
+{
+    // std::cout<<Pa<<std::endl;
+    if(Pa>-0.5)
+    {
+        std::uniform_real_distribution<double> uniform(0,1);
+        if(uniform(gen)<Pa)
+        {
+            AD = true;
+            ip = iip;
+        }
+    }
+    
+}
+
+inline void Particle::Desorption()
+{
+    if(AD && Pd>-0.5)
+    {
+        std::uniform_real_distribution<double> uniform(0,1);
+        if(uniform(gen)<Pd)
+        {
+            AD = false;
+            ip = -1;
+            X = O + Rh*er;
+            Xb = X;
+        }
+    }
+    
 }
 
 inline void Particle::Move(std::vector<Vec3_t> &VV, std::vector<int> &idx, double dt)
@@ -51,14 +99,21 @@ inline void Particle::Move(std::vector<Vec3_t> &VV, std::vector<int> &idx, doubl
     // std::cout<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<std::endl;
     // std::cout<<V(0)<<"    "<<V(1)<<std::endl;
     Xb = X;
+    std::normal_distribution<double> normal(0,1);
     Vec3_t e(normal(gen),normal(gen),0.);
     X = X+V*dt+std::sqrt(2*Dm*dt)*e;    
 }
 
 inline void Particle::Move1(Vec3_t &V, double dt)
 {
+    std::normal_distribution<double> normal(0,1);
     Vec3_t e(normal(gen),normal(gen),0.);
     X = X+V*dt+std::sqrt(2*Dm*dt)*e;    
+}
+
+inline void Particle::Move2(Vec3_t &V, double dt)
+{
+    X = X+V*dt;    
 }
 
 inline void Particle::Leave(int modexy, Vec3_t &Box)
@@ -66,37 +121,47 @@ inline void Particle::Leave(int modexy, Vec3_t &Box)
     if(1000*X(modexy)<1000*Box(0))
     {   
         double dist = std::fabs(X(modexy)-Box(0));
-        X(modexy) = Box(1)-dist;
+        X(modexy) = Box(1)-dist+1.0;
         double distb = Xb(modexy)-Box(0);
-        Xb(modexy) = Box(1)+distb;;   
+        Xb(modexy) = Box(1)+distb+1.0;   
 
     }
     if(X(modexy)>Box(1))
     {
         double dist = std::fabs(X(modexy)-Box(1));
-        X(modexy) = Box(0)+dist;
+        X(modexy) = Box(0)+dist-1.0;
         double distb = Xb(modexy)-Box(1);
-        Xb(modexy) = Box(0)+distb;
+        Xb(modexy) = Box(0)+distb-1.0;
 
     }
     
+}
 
-
+inline void Particle::LeaveReflect(int modexy1, Vec3_t &Box1)
+{
+    if(X(modexy1)<Box1(0))
+    {
+        X(modexy1) = Box1(0) + std::abs(X(modexy1) - Box1(0));
+    }
+    if(X(modexy1)>Box1(1))
+    {
+        X(modexy1) = Box1(1) - std::abs(X(modexy1) - Box1(1));
+    }
 }
 
 inline void Particle::FindIntersectV(Vec3_t &C, Vec3_t &V, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi)
 {
-    double a = Xb(0)-C(0);
-    double b = X(0)-Xb(0)-V(0);
-    double c = Xb(1)-C(1);
-    double d = X(1)-Xb(1)-V(1);
+    double a = X(0)-C(0);
+    double b = Xb(0)-X(0)+V(0);
+    double c = X(1)-C(1);
+    double d = Xb(1)-X(1)+V(1);
     double AA = b*b + d*d;
     double BB = 2*(a*b+c*d);
     double CC = a*a + c*c - R*R;
     double Delta = BB*BB-4.0*AA*CC;
     if(Delta>0)
     {
-        double q;
+        double q=0;
         double q1 = (-BB+std::sqrt(Delta))/(2.0*AA);
         double q2 = (-BB-std::sqrt(Delta))/(2.0*AA);
         bool flag1 = q1>=0 && q1-1<1e-12;
@@ -109,13 +174,15 @@ inline void Particle::FindIntersectV(Vec3_t &C, Vec3_t &V, double R, Vec3_t &X, 
             {
                 q = q2;
             }else{
-                std::cout<<q2<<" "<<X<<" "<<Xb<<" "<<"ERROR IN RWPARTICLE FindIntersectV!!!"<<std::endl;
+                q = std::max(q1,q2);
+                // std::cout<<q1<<" "<<q2<<" "<<X<<" "<<Xb<<" "<<C<<" "<<V<<" "<<R<<std::endl;
+                // throw new Fatal("ERROR IN RWPARTICLE FindIntersectV!!!");
             }
         }
         // std::cout<<"q = "<<q<<std::endl;
-        Xi = X(0)+q*(Xb(0)-X(0)),Xb(1)+q*(Xb(1)-X(1)),0.0;
+        Xi = X(0)+q*(Xb(0)-X(0)),X(1)+q*(Xb(1)-X(1)),0.0;
     }else{
-        throw new Fatal("WRONG IN DELTA!!!!!");    
+        throw new Fatal("WRONG IN DELTA in FindIntersectV!!!!!");    
     }
 
 }

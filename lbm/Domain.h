@@ -203,8 +203,13 @@ public:
     void SolveIBM(double Tf, double dtout, char const * TheFileKey, ptDFun_t ptSetup, ptDFun_t ptReport);
     void SolveIBM1(double Tf, double dtout, char const * TheFileKey, ptDFun_t ptSetup, int id, size_t xy, ptDFun_t ptReport);
     void SolveRW(double Tf, double dtout, char const * TheFileKey, ptDFun_t ptSetup, ptDFun_t ptReport);
+    
     void rwsolve_sub(double dt);
-    void CheckInside();
+    void SurfaceReaction(int ip, DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP);
+    void CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP);
+    void Pa2Grid(RW::Particle *RWP,std::vector<int> &idc);
+    void Pa2GridV(RW::Particle *RWP, std::vector<int> &idx, std::vector<Vec3_t> &VV);
+    
     #ifdef USE_OMP
     omp_lock_t      lck;                      ///< to protect variables in multithreading
     #endif
@@ -285,6 +290,8 @@ public:
     double dtdem;
     Vec3_t Box;
     int modexy;
+    Vec3_t Box1;
+    int modexy1;    
 
     
 };
@@ -327,6 +334,8 @@ inline Domain::Domain(LBMethod TheMethod, CollideMethod TheMethodC,  double Then
     Nu = nu[0];
     Box = 0.0, 0.0, 0.0;
     modexy = -1;
+    Box1 = 0.0, 0.0, 0.0;
+    modexy1 = -1;
     Tau         = 3.0*nu[0]*dt/(dx*dx)+0.5;
     if (TheMethod==D2Q5)
     {
@@ -603,6 +612,12 @@ inline void Domain::StartSolve()
     if(modexy<0)
     {
         throw new Fatal("modexy is not assigned!!!!!!");
+    }
+    if(IsRW){
+        if(modexy1<0)
+        {
+            throw new Fatal("modexy is not assigned!!!!!!");
+        }
     }
     // printf("\033[01;33m--- Solving ---\033[0m\n");
     printf("--- Tau = %g ---\n",Tau);

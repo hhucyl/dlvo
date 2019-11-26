@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from matplotlib.patches import Circle
 
-fn = "test_swi_ini_f_e_35.txt"
+fn = "test_swi_ini.txt"
 f = open(fn,"w")
 nu = 0.01
 Re = 1e3

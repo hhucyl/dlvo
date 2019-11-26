@@ -30,6 +30,7 @@ SET(PROGS
     test_wu2
     test_wu3
     test_swi
+    test_rw
 )
 
 FOREACH(var ${PROGS})

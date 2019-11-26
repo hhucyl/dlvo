@@ -284,16 +284,19 @@ void Domain::WriteXDMF(char const * FileKey)
         }
 
         double *RWPpos = NULL;
+        double *RWPAD = NULL;
         int Nrwp = RWParticles.size();
         if(RWParticles.size()>0)
         {
             RWPpos = new double[3*Nrwp];
+            RWPAD = new double[Nrwp];
             for(size_t i=0; i<RWParticles.size(); ++i)
             {
                 RW::Particle *RWP = &RWParticles[i];
                 RWPpos[3*i] = RWP->X(0);
                 RWPpos[3*i+1] = RWP->X(1);
                 RWPpos[3*i+2] = RWP->X(2);
+                RWPAD[i] = RWP->AD ? 1.0 : -1.0;
             }
         }
 
@@ -425,6 +428,10 @@ void Domain::WriteXDMF(char const * FileKey)
             dims[0] = 3*Nrwp;
             dsname.Printf("RWPposition");        
             H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,RWPpos);
+
+            dims[0] = Nrwp;
+            dsname.Printf("RWPIsAD");        
+            H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,RWPAD);
         }
         
         delete [] Density ;
@@ -465,6 +472,7 @@ void Domain::WriteXDMF(char const * FileKey)
         if(RWParticles.size()>0)
         {
             delete [] RWPpos;
+            delete [] RWPAD;
         }
     }
 

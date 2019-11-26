@@ -532,12 +532,11 @@ int main (int argc, char **argv) try
 
     }
     
-
     
 
-    double Tf = 1e5;
+    double Tf = 10;
     dom.IsF = true;    
-    double dtout = 1e2;
+    double dtout = 1;
     dom.Box = 0.0, nx-1, 0.0;
     dom.modexy = 0;
     //solving

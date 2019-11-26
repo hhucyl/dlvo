@@ -192,6 +192,19 @@ test_wu2/fast:
 .PHONY : test_wu2/fast
 
 #=============================================================================
+# Target rules for targets named test_rw
+
+# Build rule for target.
+test_rw: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_rw
+.PHONY : test_rw
+
+# fast build rule for target.
+test_rw/fast:
+	$(MAKE) -f CMakeFiles/test_rw.dir/build.make CMakeFiles/test_rw.dir/build
+.PHONY : test_rw/fast
+
+#=============================================================================
 # Target rules for targets named test_wu3
 
 # Build rule for target.
@@ -284,6 +297,33 @@ test_fine.s: test_fine.cpp.s
 test_fine.cpp.s:
 	$(MAKE) -f CMakeFiles/test_fine.dir/build.make CMakeFiles/test_fine.dir/test_fine.cpp.s
 .PHONY : test_fine.cpp.s
+
+test_rw.o: test_rw.cpp.o
+
+.PHONY : test_rw.o
+
+# target to build an object file
+test_rw.cpp.o:
+	$(MAKE) -f CMakeFiles/test_rw.dir/build.make CMakeFiles/test_rw.dir/test_rw.cpp.o
+.PHONY : test_rw.cpp.o
+
+test_rw.i: test_rw.cpp.i
+
+.PHONY : test_rw.i
+
+# target to preprocess a source file
+test_rw.cpp.i:
+	$(MAKE) -f CMakeFiles/test_rw.dir/build.make CMakeFiles/test_rw.dir/test_rw.cpp.i
+.PHONY : test_rw.cpp.i
+
+test_rw.s: test_rw.cpp.s
+
+.PHONY : test_rw.s
+
+# target to generate assembly for a file
+test_rw.cpp.s:
+	$(MAKE) -f CMakeFiles/test_rw.dir/build.make CMakeFiles/test_rw.dir/test_rw.cpp.s
+.PHONY : test_rw.cpp.s
 
 test_swi.o: test_swi.cpp.o
 
@@ -407,6 +447,7 @@ help:
 	@echo "... test_fine"
 	@echo "... test_wu"
 	@echo "... test_wu2"
+	@echo "... test_rw"
 	@echo "... test_wu3"
 	@echo "... test_2.o"
 	@echo "... test_2.i"
@@ -417,6 +458,9 @@ help:
 	@echo "... test_fine.o"
 	@echo "... test_fine.i"
 	@echo "... test_fine.s"
+	@echo "... test_rw.o"
+	@echo "... test_rw.i"
+	@echo "... test_rw.s"
 	@echo "... test_swi.o"
 	@echo "... test_swi.i"
 	@echo "... test_swi.s"
