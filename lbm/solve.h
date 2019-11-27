@@ -349,9 +349,11 @@ inline void Domain::rwsolve_sub(double dt)
             }
             DEM::Disk* Pa = &Particles[ip]; 
             Vec3_t VelPt = Pa->V;
-            RWP->Move2(VelPt,dt); 
+            RWP->Move2(VelPt,dt);
+            // RWP->O = RWP->O + VelPt*dt; 
+            RWP->Desorption(Pa->Pd);
+
         }
-        RWP->Desorption();
         if(!RWP->AD)
         {
             Vec3_t v0(0,0,0); 
@@ -512,15 +514,17 @@ inline void Domain::SurfaceReaction(int ip, DEM::Disk *Pa, DEM::Disk *GPa, RW::P
         {
             O = GPa->X;
         }
-        RWP->Adsorption(ip);
+        RWP->Adsorption(Pa->Pa, ip);
         if(RWP->AD)
         {
 
             Vec3_t Xi(0,0,0);
             RWP->FindIntersectV(O,Pa->V,Pa->Rh,RWP->X,RWP->Xb,Xi);
             RWP->er = (Xi-O)/Norm(Xi-O);
-            RWP->X = O;
-            RWP->Rh = Pa->Rh;
+            RWP->X = O + Pa->Rh*RWP->er;
+            // RWP->O = O;
+            // std::cout<<"1 "<<RWP->X<<std::endl;
+            // RWP->Rh = Pa->Rh;
         }
     }
 }

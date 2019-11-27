@@ -1,6 +1,6 @@
 clear
 clc
-prefix = {'test_rw1_'};
+prefix = {'/home/user/dlvo/test_rw1_'};
 num = [0:999];
 R = 5;
 for i=1:numel(num)
@@ -25,7 +25,7 @@ for i=1:numel(num)
     plot(rpx(kkk1),rpy(kkk1),'k.');
     plot(rpx(kkk2),rpy(kkk2),'r.');
     axis equal
-    xlim([0 299])
+    xlim([0 90])
     drawnow
 %     fn = strcat(num2str(i),'.jpg');
 %     saveas(gcf,char(fn))

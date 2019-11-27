@@ -61,6 +61,8 @@ int main (int argc, char **argv) try
         dom.Particles[ip].Ff =  M_PI*dom.Particles[ip].R*dom.Particles[ip].R*(rhos-1)*1e-4,0.0,0.0;
         std::cout<<dom.Particles[ip].Ff<<std::endl;       
         dom.Particles[ip].Rh = RR;
+        dom.Particles[ip].Pa = 0.5;
+        dom.Particles[ip].Pd = 0.1;
 
     }
     
@@ -87,12 +89,7 @@ int main (int argc, char **argv) try
 
         } 
     }
-    for(int i=0;i<(int) dom.RWParticles.size();++i)
-    {
-        RW::Particle *RWP = &dom.RWParticles[i];
-        RWP->Pa = 0.5;
-        RWP->Pd = 0.1;
-    }
+    
     std::cout<<"RW particles complete "<<std::endl;
     std::cout<<"RW particles NUM "<<dom.RWParticles.size()<<std::endl;
 

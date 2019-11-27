@@ -13,13 +13,13 @@ class Particle
     Vec3_t X;
     Vec3_t Xb;
     Vec3_t er; //for adsorption
-    Vec3_t O; //for adsorption
-    double Rh; //for adsorption
+    // Vec3_t O; //for adsorption
+    // double Rh; //for adsorption
     double Dm;
 
     bool AD; //whether adsorped by the solid surface
-    double Pa; //adsorption probability
-    double Pd; //desorption probability
+    // double Pa; //adsorption probability
+    // double Pd; //desorption probability
 
     int ip;
     void Move(std::vector<Vec3_t> &VV, std::vector<int> &idx, double dt);
@@ -32,8 +32,8 @@ class Particle
     void FindIntersect1(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //x in. xb out
     void FindIntersect2(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //x in. xb in
 
-    void Adsorption(int iip);
-    void Desorption();
+    void Adsorption(double Pa, int iip);
+    void Desorption(double Pd);
 
     //random
     
@@ -46,11 +46,14 @@ inline Particle::Particle(Vec3_t &X0, double dm): gen(std::random_device()())
     Dm = dm;
     AD = false;
     ip = -1;
-    Pa = -1.0;
-    Pd = -1.0;
+    // Pa = -1.0;
+    // Pd = -1.0;
+    // O = 0,0,0;
+    // er = 0,0,0;
+    // Rh = 0,0,0;
 }
 
-inline void Particle::Adsorption(int iip)
+inline void Particle::Adsorption(double Pa, int iip)
 {
     // std::cout<<Pa<<std::endl;
     if(Pa>-0.5)
@@ -65,7 +68,7 @@ inline void Particle::Adsorption(int iip)
     
 }
 
-inline void Particle::Desorption()
+inline void Particle::Desorption(double Pd)
 {
     if(AD && Pd>-0.5)
     {
@@ -74,8 +77,9 @@ inline void Particle::Desorption()
         {
             AD = false;
             ip = -1;
-            X = O + Rh*er;
-            Xb = X;
+            // X = O + Rh*er;
+            // std::cout<<"X "<<X<<" O "<<O(0)<<" "<<O(1)<<" "<<O(2)<<" Rh "<<Rh<<" er "<<er<<std::endl;
+            // Xb = X;
         }
     }
     

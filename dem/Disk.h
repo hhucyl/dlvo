@@ -75,6 +75,9 @@ public:
 
     // std::vector<bool> NodeType;
     // std::vector<Vec3_t> points;
+    
+    double Pa;             ///< Adsorption
+    double Pd;             ///< Desorption
 
 
 };
@@ -121,6 +124,10 @@ inline Disk::Disk(int TheTag, Vec3_t const & TheX, Vec3_t const & TheV, Vec3_t c
     Beta = 0.12; 
     Q    = 1.0,0.0,0.0,0.0;
     Ghost = false;
+
+    Pa = -1;
+    Pd = -1;
+
 #ifdef USE_THREAD
     pthread_mutex_init(&lck,NULL);
 #elif USE_OMP
