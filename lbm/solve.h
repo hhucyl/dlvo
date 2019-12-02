@@ -352,7 +352,6 @@ inline void Domain::rwsolve_sub(double dt)
             RWP->Move2(VelPt,dt);
             RWP->Leave(modexy,Box);
             RWP->LeaveReflect(modexy1,Box1);
-            // RWP->O = RWP->O + VelPt*dt; 
             RWP->Desorption(Pa->Pd);
             if(!RWP->AD)
             {
@@ -360,8 +359,6 @@ inline void Domain::rwsolve_sub(double dt)
                     Pa->Alimit0 -= 1;
             }
         }
-        // std::cout<<Time<<std::endl;
-        // std::cout<<RWP->X(0)<<" "<<RWP->X(1)<<std::endl;
 
         if(!RWP->AD)
         {
@@ -380,7 +377,8 @@ inline void Domain::rwsolve_sub(double dt)
             int ix = idc[0];
             int iy = idc[1];
             // std::cerr<<RWP->X(0)<<" "<<RWP->X(1)<<" "<<ix<<" "<<iy<<std::endl;
-
+            if(ix<0 || ix>Ndim(0)-1) std::cout<<ix<<std::endl;
+            if(iy<0 || iy>Ndim(1)-1) std::cout<<iy<<std::endl;
             if(Check[ix][iy][0]>-0.5) 
             {
 
@@ -554,7 +552,7 @@ inline void Domain::SurfaceReaction(int ip, DEM::Disk *Pa, DEM::Disk *GPa, RW::P
 
 inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP)
 {
-    if((Norm(Pa->X-RWP->X)<Pa->Rh || Norm(GPa->X-RWP->X)<Pa->Rh) && !RWP->AD) 
+    if((Norm(Pa->X-RWP->X)<=Pa->Rh || Norm(GPa->X-RWP->X)<=Pa->Rh) && !RWP->AD) 
     {
 
         Vec3_t Xi(0,0,0);
@@ -575,14 +573,6 @@ inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP
         
         if(dtt>1.1)
         { 
-            // std::cout<<" dtt "<<dtt<<std::endl;
-            // std::cout<<" Xi "<<Xi<<std::endl;  
-            // std::cout<<" RX "<<RWP->X<<std::endl;  
-            // std::cout<<" RXb "<<RWP->Xb<<std::endl;
-            // std::cout<<" O "<<O<<std::endl;
-            // std::cout<<" Ob "<<Ob<<std::endl;
-            // throw new Fatal("dtt!!!");
-
             Xi = RWP->X;
             Vec3_t er = (Xi-O)/Norm(Xi-O);
             RWP->X = O + Pa->Rh*er;
@@ -604,7 +594,7 @@ inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP
         
         bool IsIn = false;
         int nn = 0;
-        
+        bool fflag = false;
         do{
             nn++;
             // std::cout<<"step "<<nn<<std::endl;
@@ -612,18 +602,13 @@ inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP
             RWP->X = Xi;
             RWP->Move1(VelPt,dtt);
             RWP->Leave(modexy,Box);
-
-            // Pa2GridV(RWP,idx,VV);
-            // RWP->Move(VV,idx,dt);
-            // RWP->Leave(modexy,Box);
-
             RWP->LeaveReflect(modexy1,Box1);
             
-            if(Norm(Pa->X-RWP->X)<Pa->Rh )
+            if(Norm(Pa->X-RWP->X)<=Pa->Rh )
             {
                 IsIn = true;
             }
-            if(Norm(GPa->X-RWP->X)<GPa->Rh )
+            if(Norm(GPa->X-RWP->X)<=GPa->Rh )
             {
                 IsIn = true;
             }
@@ -640,36 +625,40 @@ inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP
                 DEM::Disk *GP1 = &GhostParticles[ip1];
                 DEM::Disk *P2 = &Particles[ip2];
                 DEM::Disk *GP2 = &GhostParticles[ip2];
-                if(Norm(P1->X-RWP->X)<P1->Rh )
+                if(Norm(P1->X-RWP->X)<=P1->Rh )
                 {
                     IsIn = true;
                 }
-                if(Norm(GP1->X-RWP->X)<GP1->Rh )
+                if(Norm(GP1->X-RWP->X)<=GP1->Rh )
                 {
                     IsIn = true;
                 }
-                if(Norm(P2->X-RWP->X)<P2->Rh )
+                if(Norm(P2->X-RWP->X)<=P2->Rh )
                 {
                     IsIn = true;
                 }
-                if(Norm(GP2->X-RWP->X)<GP2->Rh )
+                if(Norm(GP2->X-RWP->X)<=GP2->Rh )
                 {
                     IsIn = true;
                 }
                     
             }
-            if(nn>1e4)
+            if(nn>1e2)
             {
+                fflag = true;
                 break;
             }
             
         }while(IsIn);
         // std::cout<<nn<<std::endl;
-        if(nn>1e4)
+        if(fflag)
         {
             // std::cout<<Xi<<std::endl;
             Vec3_t er = (Xi-O)/Norm(Xi-O);
             RWP->X = O + Pa->Rh*er;
+            RWP->Xb = RWP->X;
+            RWP->Leave(modexy,Box);
+            RWP->LeaveReflect(modexy1,Box1);
             // throw new Fatal("N!!!");
         }
     }

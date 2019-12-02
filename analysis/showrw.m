@@ -1,8 +1,7 @@
 clear
 clc
-prefix = {'/home/user/dlvo/test_rw1_'};
-num = [0:100];
-R = 5;
+prefix = {'/home/user/dlvo/test_swi_rw1_'};
+num = [152];
 for i=1:numel(num)
     name = strcat(prefix,num2str(num(i),'%04d'),'.h5');
     nx = double(h5read(char(name),'/Nx'));
@@ -11,6 +10,7 @@ for i=1:numel(num)
     rpad = h5read(char(name),'/RWPIsAD');
     p = h5read(char(name),'/Pposition');
     pad = h5read(char(name),'/PAD');
+    Pr = h5read(char(name),'/PR');
     np = numel(p)/6;
     
     ppad = pad(1:np);
@@ -23,10 +23,11 @@ for i=1:numel(num)
     py = p(2:3:3*np-1);
     rpx = rp(1:3:end-2);
     rpy = rp(2:3:end-1);
-    RR = zeros(np,1)+R;
-    viscircles([px,py],RR,'Color','b');
+    pr = Pr(1:np)-2;
+    viscircles([px,py],pr,'Color','b');
     hold on
-    viscircles([gpx,gpy],RR,'Color','b');
+    gpr = Pr(np+1:end)-2;
+    viscircles([gpx,gpy],gpr,'Color','b');
     kkk1 = find(rpad<0);
     kkk2 = find(rpad>0);
     ADN(i,1) = numel(kkk2);
@@ -37,13 +38,13 @@ for i=1:numel(num)
     plot([-1 -1], [0 ny-1],'g--')
     plot([nx-1,nx-1],[0 ny-1],'g')
     plot([nx,nx],[0 ny-1],'g--')
-    xlim([-R nx+R])
+    xlim([-pr(1) nx+pr(1)])
+    ylim([0 ny-1])
     drawnow
 %     fn = strcat(num2str(i),'.jpg');
 %     saveas(gcf,char(fn))
-    clf
+%     pause(0.5)
+%     clf
 end
 figure
 plot(ADN)
-figure
-plot(PT)

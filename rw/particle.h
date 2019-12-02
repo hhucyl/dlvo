@@ -147,11 +147,11 @@ inline void Particle::LeaveReflect(int modexy1, Vec3_t &Box1)
 {
     if(X(modexy1)<Box1(0))
     {
-        X(modexy1) = Box1(0) + std::abs(X(modexy1) - Box1(0));
+        X(modexy1) = Box1(0) + std::fabs(X(modexy1) - Box1(0));
     }
     if(X(modexy1)>Box1(1))
     {
-        X(modexy1) = Box1(1) - std::abs(X(modexy1) - Box1(1));
+        X(modexy1) = Box1(1) - std::fabs(X(modexy1) - Box1(1));
     }
 }
 
