@@ -23,17 +23,16 @@ int main (int argc, char **argv) try
     //dem
     double rhos = 2.7;
     double RR = 5;
-    Vec3_t pos(0.1*nx,0.5*ny,0.0);
+    Vec3_t pos(11,0.5*ny,0.0);
 
     Vec3_t v(0.0,0.0,0.0);
     Vec3_t w(0.0,0.0,0.0);
     dom.dtdem = 0.01*dt;
     dom.Particles.push_back(DEM::Disk(-1, pos, v, w, rhos, RR, dom.dtdem));
-    // dom.Particles[0].FixVeloc();
-    pos = 53,50.1,0;
+    pos = 11+23,0.5*ny+0.1,0;
     v = 0,0 ,0;
     dom.Particles.push_back(DEM::Disk(-1, pos, v, w, rhos, RR, dom.dtdem));
-
+    
     std::cout<<"Particles number = "<<dom.Particles.size()<<std::endl;
     for(size_t ip=0; ip<dom.Particles.size(); ++ip)
     {
@@ -63,34 +62,37 @@ int main (int argc, char **argv) try
         dom.Particles[ip].Rh = RR;
         dom.Particles[ip].Pa = 0.5;
         dom.Particles[ip].Pd = 0.1;
-        dom.Particles[ip].Alimit = 1e6;
-        dom.Particles[ip].Alimit0 = 0;
 
     }
     
     //rw Particles
-    int xs = 36;
-    int xe = 46;
-    int ys = 20;
-    int ye = 80;
-    int RWP = 20;
+    
+    int RWP = 5e3;
     dom.IsRW = true;
-    for(int ix=xs; ix<xe; ++ix)
-    for(int iy=ys; iy<ye; ++iy)
-    {
-        // int x1 = startx[i];
-        int x1 = ix;
-        int y1 = iy;
-        int x2 = x1+1;
-        int y2 = y1+1;
-        for(int ip=0; ip<RWP; ++ip)
+    Vec3_t xt(0,0,0);
+    double pi = 3.1415926;
+    for(size_t ip=0; ip<dom.Particles.size(); ++ip)
+    {    
+        DEM::Disk *Pa = &dom.Particles[ip];
+        for(int ir=0; ir<RWP; ++ir)
         {
-            Vec3_t xt(random(x1,x2),random(y1,y2),0);
+            double d = ((double) ir)/((double) RWP);
+            Vec3_t e(Pa->Rh*std::cos(d*2*pi),Pa->Rh*std::sin(d*2*pi),0);
+            xt = Pa->X + e;
             dom.RWParticles.push_back(RW::Particle(xt,Dm));
-            RW::Particle *RWP = &dom.RWParticles.back();
             
-
-        } 
+            RW::Particle *RWP = &dom.RWParticles.back();
+            RWP->AD = true;
+            RWP->ip = ip;
+        }
+        Pa->Alimit = RWP; 
+        Pa->Alimit0 = RWP;
+        // for(size_t ir=0; ir<dom.RWParticles.size(); ++ir)
+        // {    
+        //     RW::Particle *RWP = &dom.RWParticles[ir];
+        //     RWP->AD = true;
+        //     RWP->ip = ip;
+        // } 
     }
     
     std::cout<<"RW particles complete "<<std::endl;

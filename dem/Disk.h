@@ -77,6 +77,8 @@ public:
     // std::vector<Vec3_t> points;
     
     double Pa;             ///< Adsorption
+    int Alimit;
+    int Alimit0;
     double Pd;             ///< Desorption
 
 
@@ -127,6 +129,9 @@ inline Disk::Disk(int TheTag, Vec3_t const & TheX, Vec3_t const & TheV, Vec3_t c
 
     Pa = -1;
     Pd = -1;
+
+    Alimit = 0;
+    Alimit0 = 0;
 
 #ifdef USE_THREAD
     pthread_mutex_init(&lck,NULL);

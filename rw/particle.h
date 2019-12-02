@@ -117,7 +117,9 @@ inline void Particle::Move1(Vec3_t &V, double dt)
 
 inline void Particle::Move2(Vec3_t &V, double dt)
 {
-    X = X+V*dt;    
+    // Xb = X;   
+
+    X = X+V*dt; 
 }
 
 inline void Particle::Leave(int modexy, Vec3_t &Box)
@@ -179,8 +181,11 @@ inline void Particle::FindIntersectV(Vec3_t &C, Vec3_t &V, double R, Vec3_t &X, 
                 q = q2;
             }else{
                 q = std::max(q1,q2);
+                // if(q>2)
+                // {
                 // std::cout<<q1<<" "<<q2<<" "<<X<<" "<<Xb<<" "<<C<<" "<<V<<" "<<R<<std::endl;
                 // throw new Fatal("ERROR IN RWPARTICLE FindIntersectV!!!");
+                // }
             }
         }
         // std::cout<<"q = "<<q<<std::endl;

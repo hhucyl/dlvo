@@ -120,6 +120,7 @@ void Domain::WriteXDMF(char const * FileKey)
         double *PM = NULL;
         double *SFR = NULL;
         double *FDR = NULL;
+        double *PAD = NULL;
         // int *PlistPP = NULL;
         // int *PlistPG = NULL;
 
@@ -153,7 +154,7 @@ void Domain::WriteXDMF(char const * FileKey)
             PlistR = new int[NLR*2];
             SFR = new double[NLR*3];
             FDR = new double[NLR*3];
-
+            if(IsRW) PAD = new double[NP];
             
             // Ppoints = new double[3*NP*Npp];
             // PNodeType = new double[NP*Npp/2];
@@ -189,6 +190,7 @@ void Domain::WriteXDMF(char const * FileKey)
                 PForceh[3*ip+1] = Pa->Fh(1);
                 PForceh[3*ip+2] = Pa->Fh(2);
                 
+                if(IsRW) PAD[ip] = (double) Pa->Alimit0;
 
                 // for(int ii=0; ii<Npp; ++ii)
                 // {
@@ -236,6 +238,7 @@ void Domain::WriteXDMF(char const * FileKey)
                 PForceh[3*ipp] = Pa->Fh(0);
                 PForceh[3*ipp+1] = Pa->Fh(1);
                 PForceh[3*ipp+2] = Pa->Fh(2);
+                if(IsRW) PAD[ipp] = (double) Pa->Alimit0;
 
                 // for(int ii=0; ii<Npp; ++ii)
                 // {
@@ -376,6 +379,14 @@ void Domain::WriteXDMF(char const * FileKey)
             dims[0] = NP;            
             dsname.Printf("PM");        
             H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,PM);
+            if(IsRW)
+            {
+                dims[0] = NP;            
+                dsname.Printf("PAD");        
+                H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,PAD);
+            }
+            
+            
             dims[0] = 3*NP;
             dsname.Printf("Pposition");        
             H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,Pposition);
@@ -464,7 +475,7 @@ void Domain::WriteXDMF(char const * FileKey)
             delete [] PlistR;
             delete [] SFR;
             delete [] FDR;
-
+            if(IsRW) delete [] PAD;
             // delete [] Ppoints;
             // delete [] PNodeType;
             // delete [] PNodeList;

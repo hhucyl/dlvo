@@ -114,6 +114,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named test_rw1
+
+# Build rule for target.
+test_rw1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_rw1
+.PHONY : test_rw1
+
+# fast build rule for target.
+test_rw1/fast:
+	$(MAKE) -f CMakeFiles/test_rw1.dir/build.make CMakeFiles/test_rw1.dir/build
+.PHONY : test_rw1/fast
+
+#=============================================================================
 # Target rules for targets named test_swi
 
 # Build rule for target.
@@ -325,6 +338,33 @@ test_rw.cpp.s:
 	$(MAKE) -f CMakeFiles/test_rw.dir/build.make CMakeFiles/test_rw.dir/test_rw.cpp.s
 .PHONY : test_rw.cpp.s
 
+test_rw1.o: test_rw1.cpp.o
+
+.PHONY : test_rw1.o
+
+# target to build an object file
+test_rw1.cpp.o:
+	$(MAKE) -f CMakeFiles/test_rw1.dir/build.make CMakeFiles/test_rw1.dir/test_rw1.cpp.o
+.PHONY : test_rw1.cpp.o
+
+test_rw1.i: test_rw1.cpp.i
+
+.PHONY : test_rw1.i
+
+# target to preprocess a source file
+test_rw1.cpp.i:
+	$(MAKE) -f CMakeFiles/test_rw1.dir/build.make CMakeFiles/test_rw1.dir/test_rw1.cpp.i
+.PHONY : test_rw1.cpp.i
+
+test_rw1.s: test_rw1.cpp.s
+
+.PHONY : test_rw1.s
+
+# target to generate assembly for a file
+test_rw1.cpp.s:
+	$(MAKE) -f CMakeFiles/test_rw1.dir/build.make CMakeFiles/test_rw1.dir/test_rw1.cpp.s
+.PHONY : test_rw1.cpp.s
+
 test_swi.o: test_swi.cpp.o
 
 .PHONY : test_swi.o
@@ -441,6 +481,7 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... test_rw1"
 	@echo "... test_swi"
 	@echo "... test_2"
 	@echo "... test_cong"
@@ -461,6 +502,9 @@ help:
 	@echo "... test_rw.o"
 	@echo "... test_rw.i"
 	@echo "... test_rw.s"
+	@echo "... test_rw1.o"
+	@echo "... test_rw1.i"
+	@echo "... test_rw1.s"
 	@echo "... test_swi.o"
 	@echo "... test_swi.i"
 	@echo "... test_swi.s"
