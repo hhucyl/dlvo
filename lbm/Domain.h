@@ -265,7 +265,7 @@ public:
     Vec3_t ***VelP;
     Vec3_t ***Flbm;
     double ***Gamma;
-    int ***Check;
+    int ****Check;
     
     std::set<int> ***CheckIBM;
     // int ***CheckRh;
@@ -283,7 +283,6 @@ public:
     std::vector<RW::Particle> RWParticles;
     std::map<std::pair<int,int>, Vec3_t> Friction;
     std::map<std::pair<int,int>, Vec3_t> Rolling;
-    std::map<std::pair<int,int>, std::pair<int,int>> GridPair;
     bool IsRW;
     int ***Con;
 
@@ -451,7 +450,7 @@ inline Domain::Domain(LBMethod TheMethod, CollideMethod TheMethodC,  double Then
     Rho         = new double **  [Ndim(0)];
     IsSolid     = new bool   **  [Ndim(0)];
     Gamma       = new double **  [Ndim(0)];
-    Check       = new int **  [Ndim(0)];
+    Check       = new int ***  [Ndim(0)];
     Con       = new int **  [Ndim(0)];
     CheckIBM    = new std::set<int> **[Ndim(0)];
     // CheckRh       = new int **  [Ndim(0)];
@@ -469,7 +468,7 @@ inline Domain::Domain(LBMethod TheMethod, CollideMethod TheMethodC,  double Then
         VelP    [nx]    = new Vec3_t *  [Ndim(1)];
         Flbm    [nx]    = new Vec3_t *  [Ndim(1)];
         Gamma   [nx]    = new double *  [Ndim(1)];
-        Check   [nx]    = new int *  [Ndim(1)];
+        Check   [nx]    = new int **  [Ndim(1)];
         Con   [nx]    = new int *  [Ndim(1)];
         CheckIBM[nx]    = new std::set<int> *[Ndim(1)];
 
@@ -488,7 +487,7 @@ inline Domain::Domain(LBMethod TheMethod, CollideMethod TheMethodC,  double Then
             VelP    [nx][ny]    = new Vec3_t   [Ndim(2)];
             Flbm    [nx][ny]    = new Vec3_t   [Ndim(2)];
             Gamma   [nx][ny]    = new double   [Ndim(2)];        
-            Check   [nx][ny]    = new int   [Ndim(2)];
+            Check   [nx][ny]    = new int  * [Ndim(2)];
             Con   [nx][ny]    = new int   [Ndim(2)];
             CheckIBM[nx][ny]    = new std::set<int> [Ndim(2)];
 
@@ -500,13 +499,16 @@ inline Domain::Domain(LBMethod TheMethod, CollideMethod TheMethodC,  double Then
                 q    [nx][ny][nz]    = new double [Nneigh];
                 t    [nx][ny][nz]    = new double [Nneigh];
 	            Omeis[nx][ny][nz]    = new double [Nneigh];
+                Check[nx][ny][nz]    = new int    [2];
                 IsSolid[nx][ny][nz]  = false;
                 VelP[nx][ny][nz] = 0.0, 0.0, 0.0;
                 Flbm[nx][ny][nz] = 0.0, 0.0, 0.0;
                 BForce[nx][ny][nz] = 0.0, 0.0, 0.0;
                 Gamma[nx][ny][nz] = 0.0;
-                Check[nx][ny][nz] = -1;
+                
                 Con[nx][ny][nz] = 0;
+                Check[nx][ny][nz][0] = -1; 
+                Check[nx][ny][nz][1] = -1; 
                 // CheckRh[nx][ny][nz] = -1;
                 for (size_t nn=0;nn<Nneigh;nn++)
                 {
@@ -549,6 +551,7 @@ inline Domain::Domain(LBMethod TheMethod, CollideMethod TheMethodC,  double Then
 #include "Initialize.h"
 #include "ApplySolidBoundary.h"
 #include "CoupleDEM.h"
+#include "solve_rw.h"
 #include "solve.h"
 
 
@@ -583,7 +586,8 @@ inline void Domain::SetZero()
     for (size_t iz=0;iz<nz;iz++)
     {
         Gamma[ix][iy][iz] = 0.0;
-        Check[ix][iy][iz] = -1;
+        Check[ix][iy][iz][0] = -1;
+        Check[ix][iy][iz][1] = -1;
         Con[ix][iy][iz] = 0;
         CheckIBM[ix][iy][iz].clear();
         // CheckRh[ix][iy][iz] = -1;

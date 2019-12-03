@@ -126,7 +126,7 @@ int main (int argc, char **argv) try
     double ratio = 5;
     double RR = ratio*R;
     int Pnx = 3;
-    int Pny = 3; 
+    int Pny = 1; 
     int pnx = 10;
     int pny = 1;
     double pdx = 20;//gap between the large particle
@@ -138,7 +138,7 @@ int main (int argc, char **argv) try
     size_t nx = std::ceil(Pnx*(RR*2 + pdx));
     double pl = (double) nx/pnx;
     double ppl = 2*R; //distance above the swi 
-    double pppl = 3*R; //distance below the top boundary
+    double pppl = 2*R; //distance below the top boundary
     // std::cout<<"pl "<<pl<<std::endl;
     // std::cout<<"pll "<<ppl + (pny-1)*pl<<std::endl;
     double H =  ppl + (pny-1)*pl + pppl + 1;
@@ -182,7 +182,7 @@ int main (int argc, char **argv) try
     my_dat.Mu = 0;
     my_dat.Eta = 0;
     my_dat.Beta = 0;
-    my_dat.D = 2;
+    my_dat.D = 1;
     my_dat.g = gy;
 
     dom.Nproc = Nproc;       

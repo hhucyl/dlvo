@@ -56,7 +56,6 @@ inline void Domain::UpdateParticlesContacts()
     ListofContacts.clear();
     // std::set<std::pair<int,int>> myset_privatepp[Nproc];
     std::set<std::pair<int,int>> myset_private[Nproc];
-    std::map<std::pair<int,int>, std::pair<int,int>> grid_pair[Nproc];
     #pragma omp parallel for schedule(static) num_threads(Nproc)
     for(int ip=0; ip<(int)Particles.size(); ++ip)
     {
@@ -74,19 +73,21 @@ inline void Domain::UpdateParticlesContacts()
             Vec3_t CC(x,y,0);
             double len = DEM::DiskSquare(Pa->X,CC,(Pa->eal+Pa->D)+Pa->R,dx);
             if (std::fabs(len)<1.0e-12) continue;
-            if(Check[ix][iy][0]<0)
+            if(Check[ix][iy][0][0]<0)
             {
-                Check[ix][iy][0] = ip;
+                Check[ix][iy][0][0] = ip;
             }else{
                 // std::cout<<"Collide!!!!!"<<std::endl;
-                int ip1 = std::min(Check[ix][iy][0],ip);
-                int ip2 = std::max(Check[ix][iy][0],ip);
+                int ip1 = std::min(Check[ix][iy][0][0],ip);
+                int ip2 = std::max(Check[ix][iy][0][0],ip);
+
                 std::pair<int,int> temp(ip1,ip2);
                 // myset_privatepp[omp_get_thread_num()].insert(temp);
                 myset_private[omp_get_thread_num()].insert(temp);
-                std::pair<int,int> temp1(ix,iy);
-                grid_pair[omp_get_thread_num()][temp1] = temp;
+                Check[ix][iy][0][0] = ip1;
+                Check[ix][iy][0][1] = ip2;
             }
+                
         }
     }
     // join_contactlist_sub(myset_privatepp,ListofContactsPP);
@@ -111,19 +112,20 @@ inline void Domain::UpdateParticlesContacts()
             Vec3_t CC(x,y,0);
             double len = DEM::DiskSquare(Pa->X,CC,(Pa->eal+Pa->D)+Pa->R,dx);
             if (std::fabs(len)<1.0e-12) continue;
-            if(Check[ix][iy][0]<0)
+            if(Check[ix][iy][0][0]<0)
             {
-                Check[ix][iy][0] = ip;
+                Check[ix][iy][0][0] = ip;
             }else{
                 // std::cout<<"Collide!!!!!"<<std::endl;
-                int ip1 = std::min(Check[ix][iy][0],ip);
-                int ip2 = std::max(Check[ix][iy][0],ip);
+                int ip1 = std::min(Check[ix][iy][0][0],ip);
+                int ip2 = std::max(Check[ix][iy][0][0],ip);
                 if(std::fabs(ip2-ip1)<1e-6) continue;
                 std::pair<int,int> temp(ip1,ip2);
                 // myset_privatepg[omp_get_thread_num()].insert(temp);
                 myset_private[omp_get_thread_num()].insert(temp);
-                std::pair<int,int> temp1(ix,iy);
-                grid_pair[omp_get_thread_num()][temp1] = temp;
+                Check[ix][iy][0][0] = ip1;
+                Check[ix][iy][0][1] = ip2;
+                
                 
             }
         }
@@ -131,10 +133,6 @@ inline void Domain::UpdateParticlesContacts()
     // join_contactlist_sub(myset_privatepg,ListofContactsPG);
     join_contactlist_sub(myset_private,ListofContacts);
 
-    for(size_t i=0; i<Nproc; ++i)
-    {
-        GridPair.insert(grid_pair[i].begin(),grid_pair[i].end());
-    }
 }
 
 inline void Domain::update_pair_sub(DEM::DiskPair* pair, DEM::Disk* P1, DEM::Disk* P2)

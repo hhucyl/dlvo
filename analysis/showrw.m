@@ -1,7 +1,7 @@
 clear
 clc
 prefix = {'/home/user/dlvo/test_swi_rw1_'};
-num = [152];
+num = [0:999];
 for i=1:numel(num)
     name = strcat(prefix,num2str(num(i),'%04d'),'.h5');
     nx = double(h5read(char(name),'/Nx'));
@@ -44,7 +44,7 @@ for i=1:numel(num)
 %     fn = strcat(num2str(i),'.jpg');
 %     saveas(gcf,char(fn))
 %     pause(0.5)
-%     clf
+    clf
 end
-figure
-plot(ADN)
+% figure
+% plot(ADN)

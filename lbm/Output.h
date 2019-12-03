@@ -50,9 +50,8 @@ void Domain::WriteXDMF(char const * FileKey)
                 rho    += Rho    [n+ni][l+li][m+mi];
                 temp    = IsSolid[n+ni][l+li][m+mi] ? 2.0: 0.0;
                 gamma  += std::max(Gamma[n+ni][l+li][m+mi],temp);
-                ove    += Check[n+ni][l+li][m+mi];
+                ove    += Check[n+ni][l+li][m+mi][0];
                 ccon   += Con[n+ni][l+li][m+mi];
-                // gamma  += Check[n+ni][l+li][m+mi];
                 vel    += Vel    [n+ni][l+li][m+mi];
                 BF    += BForce    [n+ni][l+li][m+mi];
                 velp    += VelP    [n+ni][l+li][m+mi];

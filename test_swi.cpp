@@ -121,7 +121,7 @@ void Setup(LBM::Domain &dom, void *UD)
             for(int ix=ixs; ix<ixe; ++ix)
             for(int iy=iys; iy<iye; ++iy)
             {
-                if(dom.Check[ix][iy][0]>0)
+                if(dom.Check[ix][iy][0][0]>0)
                 {
                     GridCount[igx*(dat.GX-1)+igy] += 1;
                 }
