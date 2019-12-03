@@ -326,15 +326,15 @@ int main (int argc, char **argv) try
                 RWP->AD = true;
                 RWP->ip = ip;
             }
-            Pa->Alimit = RWP; 
-            Pa->Alimit0 = RWP;
-            Pa->Pa = 0.5;
-            Pa->Pd = 0.1;
+            Pa->Alimit = RWP; //total adsorption number
+            Pa->Alimit0 = RWP; // every step adsorption number
+            Pa->Pa = 0.5; // adsorption probablity
+            Pa->Pd = 0.01;// desorption probablity
         }else{
             Pa->Alimit = RWP*RR/R; 
             Pa->Alimit0 = 0;
             Pa->Pa = 0.5;
-            Pa->Pd = 0.1;
+            Pa->Pd = 0.01;
         }
     }
     

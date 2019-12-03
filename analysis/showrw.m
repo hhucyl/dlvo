@@ -1,7 +1,7 @@
 clear
 clc
 prefix = {'/home/user/dlvo/test_swi_rw1_'};
-num = [0:999];
+num = [0:150];
 for i=1:numel(num)
     name = strcat(prefix,num2str(num(i),'%04d'),'.h5');
     nx = double(h5read(char(name),'/Nx'));
