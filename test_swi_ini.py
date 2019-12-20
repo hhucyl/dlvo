@@ -58,7 +58,7 @@ Eta = 0
 Beta = 0
 A = 3e-20
 kappa = 1e9
-fi = 35*5.4
+fi = 15*5.4
 Z = 9.22e-11*np.tanh(fi/103.0)*np.tanh(fi/103.0)
 D = 2
 
@@ -90,6 +90,7 @@ print("Z ",Z)
 nx = np.ceil(Pnx*(RR*2 + pdx))
 pl = nx/pnx
 H =  ppl + (pny-1)*pl + pppl + 1
+print("H", H)
 ll = R*1.2
 
 
@@ -138,9 +139,10 @@ cutoff = 1.57e-10/ratiol
 d = np.arange(cutoff,1e-2,ratiol)
 Fvdw = A/(6*d**2)*R*RR/(R+RR)
 Fe = kappa*R*RR/(R+RR)*Z*np.exp(-kappa*d)
-plt.plot(d,Fvdw,'r')
-plt.plot(d,Fe,'b')
-plt.plot(d,Fvdw-Fe,'k')
+plt.plot(d,Fvdw,'r',label='Vdw Force')
+plt.plot(d,Fe,'b',label='Elec Force')
+plt.plot(d,Fvdw-Fe,'k',label='Total Force')
+plt.legend()
 plt.savefig("Force.png")
 
 f.write(str(N)+'\tpinit\n')
