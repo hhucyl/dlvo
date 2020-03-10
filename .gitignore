@@ -38,3 +38,6 @@ cmake_install.cmake_install
 CMakeCache.txt
 *.xmf
 *.h5
+*.mp4
+*.jpg
+*.png
