@@ -205,6 +205,7 @@ public:
     void SolveRW(double Tf, double dtout, char const * TheFileKey, ptDFun_t ptSetup, ptDFun_t ptReport);
     
     void rwsolve_sub(double dt);
+    void rwsolve_sub_nopar(double dt);
     void SurfaceReaction(int ip, DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP);
     void CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP);
     void Pa2Grid(RW::Particle *RWP,std::vector<int> &idc);

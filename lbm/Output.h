@@ -360,6 +360,10 @@ void Domain::WriteXDMF(char const * FileKey)
         N[0] = Nz;
         dsname.Printf("Nz");
         H5LTmake_dataset_int(file_id,dsname.CStr(),1,dims,N);
+        double T[1];
+        T[0] = Time;
+        dsname.Printf("Time");
+        H5LTmake_dataset_double(file_id,dsname.CStr(),1,dims,T);
         if(Particles.size()>0)
         {   
             dims[0] = 1;

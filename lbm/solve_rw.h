@@ -1,9 +1,36 @@
 #ifndef LBM_SOLVE_RW_H
 #define LBM_SOLVE_RW_H
 
+inline void Domain::rwsolve_sub_nopar(double dt)
+{
+    if(Time<0.5) std::cout<<"--- rwsolve_sub_nopar ---"<<std::endl;
+    #ifdef USE_OMP
+    #pragma omp parallel for schedule(static) num_threads(Nproc)
+    #endif
+    for(int i=0;i<(int) RWParticles.size();++i)
+    {
+        RW::Particle *RWP = &RWParticles[i];
+        std::vector<int> idc{-1,-1};
+        Vec3_t v0(0,0,0); 
+        std::vector<Vec3_t> VV{v0,v0,v0,v0};
+        std::vector<int> idx{-1,-1,-1,-1};
+        // std::cout<<111<<std::endl;
+        Pa2GridV(RWP,idx,VV);
+        // std::cout<<222<<std::endl;
+        RWP->Move(VV,idx,dt);
+        RWP->Leave(modexy,Box);
+        RWP->LeaveReflect(modexy1,Box1);
+        Pa2Grid(RWP,idc);
+        int ix = idc[0];
+        int iy = idc[1];
+        #pragma omp atomic
+            Con[ix][iy][0] += 1;
+    }
+}
+
 inline void Domain::rwsolve_sub(double dt)
 {
-    // std::cout<<1<<std::endl;
+    if(Time<0.5) std::cout<<"--- rwsolve_sub ---"<<std::endl;
     #ifdef USE_OMP
     #pragma omp parallel for schedule(static) num_threads(Nproc)
     #endif

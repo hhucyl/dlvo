@@ -27,10 +27,10 @@ int main (int argc, char **argv) try
     dom.Nproc = Nproc;       
 
     //initial
-    Vec3_t v0(0.0,0.0,0.0);
+    Vec3_t v0(0.01,0.0,0.0);
     Vec3_t g0(0.0,0.0,0.0);
     dom.IsF = true;
-    
+    dom.dtdem = 1*dt;
     dom.Initial(1.0,v0,g0);
    
     //RWParticles
@@ -47,6 +47,7 @@ int main (int argc, char **argv) try
             dom.RWParticles.push_back(RW::Particle(xt,Dm));
         }
     } 
+    dom.IsRW = true;
     
     std::cout<<"RW particles complete "<<std::endl;
     std::cout<<"RW particles NUM "<<dom.RWParticles.size()<<std::endl;
@@ -58,6 +59,8 @@ int main (int argc, char **argv) try
     double dtout = 100;
     dom.Box = 0.0,(double) nx-1, 0.0;
     dom.modexy = 0;
+    dom.Box1 = 0.0, ny-1, 0.0;
+    dom.modexy1 = 1;
     //solving
     dom.SolveIBM( Tf, dtout, "test_rw2", NULL, NULL);
     
