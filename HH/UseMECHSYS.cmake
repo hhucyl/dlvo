@@ -18,26 +18,28 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>  #
 ########################################################################
 
-PROJECT                (MECHSYSSANDBOX)
-CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
-INCLUDE(${MECHSYSSANDBOX_SOURCE_DIR}/UseMECHSYS.cmake)
+if(EXISTS $ENV{MECHSYS_ROOT})
+    SET(MECHSYS_INCLUDE_SEARCH_PATH $ENV{MECHSYS_ROOT}/mechsys)
+    SET(MECHSYS_MODULES_SEARCH_PATH $ENV{MECHSYS_ROOT}/mechsys)
+else(EXISTS $ENV{MECHSYS_ROOT})
+    SET(MECHSYS_INCLUDE_SEARCH_PATH $ENV{HOME}/mechsys)
+    SET(MECHSYS_MODULES_SEARCH_PATH $ENV{HOME}/mechsys)
+endif(EXISTS $ENV{MECHSYS_ROOT})
 
-SET(PROGS
-    test_2
-    test_cong
-    test_fine
-    test_wu
-    test_wu2
-    test_wu3
-    test_swi
-    test_reflect
-    test_rw
-    test_rw1
-    test_swi_rw
-)
+FIND_PATH(MECHSYS_DEM_H  mechsys/dem.h          ${MECHSYS_INCLUDE_SEARCH_PATH})
+FIND_PATH(FINDDEPS_CMAKE Modules/FindDEPS.cmake ${MECHSYS_MODULES_SEARCH_PATH})
 
-FOREACH(var ${PROGS})
-    ADD_EXECUTABLE        (${var} "${var}.cpp")
-    TARGET_LINK_LIBRARIES (${var} ${LIBS})
-    SET_TARGET_PROPERTIES (${var} PROPERTIES COMPILE_FLAGS "${FLAGS}" LINK_FLAGS "${LFLAGS}")
+SET(MECHSYS_FOUND 1)
+FOREACH(var MECHSYS_DEM_H FINDDEPS_CMAKE)
+    IF(NOT ${var})
+        MESSAGE("Error: Cannot find MechSys file: " ${var} " => project cannot be configured")
+        SET(MECHSYS_FOUND 0)
+    ENDIF(NOT ${var})
 ENDFOREACH(var)
+
+IF(MECHSYS_FOUND)
+    SET(MECHSYS_SOURCE_DIR "${FINDDEPS_CMAKE}")
+    INCLUDE(${FINDDEPS_CMAKE}/Modules/FindDEPS.cmake)
+    INCLUDE_DIRECTORIES(${MECHSYS_DEM_H})
+    SET(LIBS ${LIBS})
+ENDIF(MECHSYS_FOUND)

@@ -114,19 +114,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named test_swi_rw1
-
-# Build rule for target.
-test_swi_rw1: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_swi_rw1
-.PHONY : test_swi_rw1
-
-# fast build rule for target.
-test_swi_rw1/fast:
-	$(MAKE) -f CMakeFiles/test_swi_rw1.dir/build.make CMakeFiles/test_swi_rw1.dir/build
-.PHONY : test_swi_rw1/fast
-
-#=============================================================================
 # Target rules for targets named test_rw1
 
 # Build rule for target.
@@ -203,6 +190,19 @@ test_fine: cmake_check_build_system
 test_fine/fast:
 	$(MAKE) -f CMakeFiles/test_fine.dir/build.make CMakeFiles/test_fine.dir/build
 .PHONY : test_fine/fast
+
+#=============================================================================
+# Target rules for targets named test_swi_h
+
+# Build rule for target.
+test_swi_h: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_swi_h
+.PHONY : test_swi_h
+
+# fast build rule for target.
+test_swi_h/fast:
+	$(MAKE) -f CMakeFiles/test_swi_h.dir/build.make CMakeFiles/test_swi_h.dir/build
+.PHONY : test_swi_h/fast
 
 #=============================================================================
 # Target rules for targets named test_wu
@@ -458,6 +458,33 @@ test_swi.cpp.s:
 	$(MAKE) -f CMakeFiles/test_swi.dir/build.make CMakeFiles/test_swi.dir/test_swi.cpp.s
 .PHONY : test_swi.cpp.s
 
+test_swi_h.o: test_swi_h.cpp.o
+
+.PHONY : test_swi_h.o
+
+# target to build an object file
+test_swi_h.cpp.o:
+	$(MAKE) -f CMakeFiles/test_swi_h.dir/build.make CMakeFiles/test_swi_h.dir/test_swi_h.cpp.o
+.PHONY : test_swi_h.cpp.o
+
+test_swi_h.i: test_swi_h.cpp.i
+
+.PHONY : test_swi_h.i
+
+# target to preprocess a source file
+test_swi_h.cpp.i:
+	$(MAKE) -f CMakeFiles/test_swi_h.dir/build.make CMakeFiles/test_swi_h.dir/test_swi_h.cpp.i
+.PHONY : test_swi_h.cpp.i
+
+test_swi_h.s: test_swi_h.cpp.s
+
+.PHONY : test_swi_h.s
+
+# target to generate assembly for a file
+test_swi_h.cpp.s:
+	$(MAKE) -f CMakeFiles/test_swi_h.dir/build.make CMakeFiles/test_swi_h.dir/test_swi_h.cpp.s
+.PHONY : test_swi_h.cpp.s
+
 test_swi_rw.o: test_swi_rw.cpp.o
 
 .PHONY : test_swi_rw.o
@@ -484,33 +511,6 @@ test_swi_rw.s: test_swi_rw.cpp.s
 test_swi_rw.cpp.s:
 	$(MAKE) -f CMakeFiles/test_swi_rw.dir/build.make CMakeFiles/test_swi_rw.dir/test_swi_rw.cpp.s
 .PHONY : test_swi_rw.cpp.s
-
-test_swi_rw1.o: test_swi_rw1.cpp.o
-
-.PHONY : test_swi_rw1.o
-
-# target to build an object file
-test_swi_rw1.cpp.o:
-	$(MAKE) -f CMakeFiles/test_swi_rw1.dir/build.make CMakeFiles/test_swi_rw1.dir/test_swi_rw1.cpp.o
-.PHONY : test_swi_rw1.cpp.o
-
-test_swi_rw1.i: test_swi_rw1.cpp.i
-
-.PHONY : test_swi_rw1.i
-
-# target to preprocess a source file
-test_swi_rw1.cpp.i:
-	$(MAKE) -f CMakeFiles/test_swi_rw1.dir/build.make CMakeFiles/test_swi_rw1.dir/test_swi_rw1.cpp.i
-.PHONY : test_swi_rw1.cpp.i
-
-test_swi_rw1.s: test_swi_rw1.cpp.s
-
-.PHONY : test_swi_rw1.s
-
-# target to generate assembly for a file
-test_swi_rw1.cpp.s:
-	$(MAKE) -f CMakeFiles/test_swi_rw1.dir/build.make CMakeFiles/test_swi_rw1.dir/test_swi_rw1.cpp.s
-.PHONY : test_swi_rw1.cpp.s
 
 test_wu.o: test_wu.cpp.o
 
@@ -601,13 +601,13 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... test_swi_rw1"
 	@echo "... test_rw1"
 	@echo "... test_reflect"
 	@echo "... test_swi"
 	@echo "... test_2"
 	@echo "... test_cong"
 	@echo "... test_fine"
+	@echo "... test_swi_h"
 	@echo "... test_wu"
 	@echo "... test_wu2"
 	@echo "... test_swi_rw"
@@ -634,12 +634,12 @@ help:
 	@echo "... test_swi.o"
 	@echo "... test_swi.i"
 	@echo "... test_swi.s"
+	@echo "... test_swi_h.o"
+	@echo "... test_swi_h.i"
+	@echo "... test_swi_h.s"
 	@echo "... test_swi_rw.o"
 	@echo "... test_swi_rw.i"
 	@echo "... test_swi_rw.s"
-	@echo "... test_swi_rw1.o"
-	@echo "... test_swi_rw1.i"
-	@echo "... test_swi_rw1.s"
 	@echo "... test_wu.o"
 	@echo "... test_wu.i"
 	@echo "... test_wu.s"

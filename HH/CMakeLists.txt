@@ -23,17 +23,8 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 INCLUDE(${MECHSYSSANDBOX_SOURCE_DIR}/UseMECHSYS.cmake)
 
 SET(PROGS
-    test_2
-    test_cong
-    test_fine
-    test_wu
-    test_wu2
-    test_wu3
-    test_swi
-    test_reflect
-    test_rw
-    test_rw1
-    test_swi_rw
+    test_w
+    test_cw
 )
 
 FOREACH(var ${PROGS})

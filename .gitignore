@@ -34,7 +34,11 @@ core
 
 .vscode
 CMakeFiles
+HH/CMakeFiles
 cmake_install.cmake_install
+HH/cmake_install.cmake_install
+HH/CMakeCache.txt
+HH/Makefile
 CMakeCache.txt
 *.xmf
 *.h5

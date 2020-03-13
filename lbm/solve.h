@@ -162,8 +162,8 @@ inline void Domain::SolveIBM(double Tf, double dtout, char const * TheFileKey, p
         // std::cout<<std::boolalpha<<GhostParticles[0].Ghost<<std::endl;
 
         //trace particle
-        // if(IsRW) rwsolve_sub(dt);
-        if(IsRW) rwsolve_sub_nopar(dt);
+        if(IsRW) rwsolve_sub(dt);
+        // if(IsRW) rwsolve_sub_nopar(dt);
 
         Time += 1;
     }

@@ -38,6 +38,7 @@ inline void Domain::rwsolve_sub(double dt)
     {
         RW::Particle *RWP = &RWParticles[i];
         std::vector<int> idc{-1,-1};
+        // std::cout<<111<<std::endl;
         if(RWP->AD)
         {
             int ip = RWP->ip;
@@ -58,15 +59,24 @@ inline void Domain::rwsolve_sub(double dt)
                     Pa->Alimit0 -= 1;
             }
         }
+        // std::cout<<"f"<<std::endl;
+        // std::cout<<222<<std::endl;
+
 
         if(!RWP->AD)
         {
             Vec3_t v0(0,0,0); 
             std::vector<Vec3_t> VV{v0,v0,v0,v0};
             std::vector<int> idx{-1,-1,-1,-1};
-            // std::cout<<111<<std::endl;
+            // std::cout<<1111<<std::endl;
             Pa2GridV(RWP,idx,VV);
-            // std::cout<<222<<std::endl;
+            if(Norm(VV[0])>1)
+            {
+                std::cout<<idx[0]<<" "<<idx[1]<<" "<<idx[2]<<" "<<idx[3]<<std::endl;
+                std::cout<<VV[0]<<" "<<VV[1]<<" "<<VV[2]<<" "<<VV[3]<<std::endl;
+            }
+            
+            // std::cout<<2222<<std::endl;
             RWP->Move(VV,idx,dt);
             RWP->Leave(modexy,Box);
             RWP->LeaveReflect(modexy1,Box1);
@@ -78,11 +88,18 @@ inline void Domain::rwsolve_sub(double dt)
             // std::cerr<<RWP->X(0)<<" "<<RWP->X(1)<<" "<<ix<<" "<<iy<<std::endl;
             // if(ix<0 || ix>Ndim(0)-1) std::cout<<"x "<<ix<<std::endl;
             // if(iy<0 || iy>Ndim(1)-1) std::cout<<"y "<<iy<<std::endl;
+            // std::cout<<3333<<" ix "<<ix<<" iy "<<iy<<" RWP->X "<<RWP->X<<" RWP->Xb "<<RWP->Xb<<std::endl;
+            // std::cout<<Check[ix][iy][0][0]<<std::endl;
+            // std::cout<<4444<<std::endl;
+
             if(Check[ix][iy][0][0]>-0.5) 
             {
+                // std::cout<<11111<<std::endl;
+
 
                 if(Check[ix][iy][0][1]>-0.5)
                 {
+                    // std::cout<<2<<std::endl;
                     int ip1 = Check[ix][iy][0][0];
                     int ip2 = Check[ix][iy][0][1];
                     DEM::Disk *P1 = &Particles[ip1];
@@ -100,8 +117,7 @@ inline void Domain::rwsolve_sub(double dt)
                         CheckInside(P2, GP2, RWP);
                     }
                 }else{
-                    
-                    // std::cout<<333<<std::endl;
+                    // std::cout<<3<<std::endl;
                     int ip = Check[ix][iy][0][0];
                     DEM::Disk* Pa = &Particles[ip];
                     DEM::Disk* GPa = &GhostParticles[ip];
@@ -111,8 +127,9 @@ inline void Domain::rwsolve_sub(double dt)
 
                 
             }
+
         }
-        // std::cout<<444<<std::endl;
+        // std::cout<<333<<std::endl;
         Pa2Grid(RWP,idc);
         int ix = idc[0];
         int iy = idc[1];
@@ -288,7 +305,7 @@ inline void Domain::Pa2Grid(RW::Particle *RWP,std::vector<int> &idc)
     if(xx<0) xx = (int)Ndim(0) + xx;
     if(xx>(int)Ndim(0)-1) xx = xx - (int)Ndim(0);
     if(yy<0) yy = (int)Ndim(1) + yy;
-    if(yy>(int)Ndim(0)-1) yy = yy - (int)Ndim(1);
+    if(yy>(int)Ndim(1)-1) yy = yy - (int)Ndim(1);
     idc[0] = xx;
     idc[1] = yy;  
 }

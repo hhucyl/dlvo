@@ -1,0 +1,48 @@
+0.01	nu
+10.0	Re
+10.0	R
+12.0	RR
+2.0	d hydraulic path
+20.0	ppl the space in the bottom
+20.0	pppl the space in the top
+3	Pnx big Particle num in x
+3	Pny big Particle num in y
+0	pnx small Particle num in x
+0	pny small Particle num in y
+0.24	pdx gap in x
+0.24	pdy gap in y
+0.01	random ratio in fix top
+73	nx
+123	ny
+51	H
+1000000	pl
+1e-06	ratiol
+1e-08	ratiot
+1e-15	ratiom
+1.0	rho
+2.7	rhos
+10.0	Ga
+50	Kn
+0	Gn
+0	Kt
+0	Mu
+0	Eta
+0	Beta
+0	A
+0	kappa
+0	Z
+2	D
+3	GX
+2	GY
+0	pinit
+71.72	sy
+9	Total Num
+12.1954133254 13.3154133254 12.0 -1.0	px, py, pr, ptag
+36.3972954391 13.2772954391 12.0 -1.0	px, py, pr, ptag
+60.7079986385 13.3479986385 12.0 -1.0	px, py, pr, ptag
+12.1619164282 37.5219164282 12.0 -1.0	px, py, pr, ptag
+36.4156614626 37.5356614626 12.0 -1.0	px, py, pr, ptag
+60.66306008 37.54306008 12.0 -1.0	px, py, pr, ptag
+12.0677923611 61.6677923611 12.0 -1.0	px, py, pr, ptag
+36.4734439167 61.8334439167 12.0 -1.0	px, py, pr, ptag
+60.4955283191 61.6155283191 12.0 -1.0	px, py, pr, ptag
