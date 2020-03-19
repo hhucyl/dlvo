@@ -299,7 +299,7 @@ int main (int argc, char **argv) try
     
     //rw Particles start
     double Dm = 1e-2*nu;
-    int RWP = 50;//adsorption limit
+    int RWP = 5e3;//adsorption limit
     dom.IsRW = true;
     Vec3_t xt(0,0,0);
     double pi = 3.1415926;
