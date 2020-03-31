@@ -37,6 +37,7 @@ inline void Domain::rwsolve_sub(double dt)
     for(int i=0;i<(int) RWParticles.size();++i)
     {
         RW::Particle *RWP = &RWParticles[i];
+        if(RWP->X(0)<-50 || RWP->X(1)<-50) continue;
         std::vector<int> idc{-1,-1};
         // std::cout<<111<<std::endl;
         if(RWP->AD)
@@ -51,7 +52,8 @@ inline void Domain::rwsolve_sub(double dt)
             Vec3_t VelPt = Pa->V;
             RWP->Move2(VelPt,dt);
             RWP->Leave(modexy,Box);
-            RWP->LeaveReflect(modexy1,Box1);
+            // RWP->LeaveReflect(modexy1,Box1);
+            RWP->LeaveReflect1(modexy1,Box1);
             RWP->Desorption(Pa->Pd);
             if(!RWP->AD)
             {
@@ -79,7 +81,8 @@ inline void Domain::rwsolve_sub(double dt)
             // std::cout<<2222<<std::endl;
             RWP->Move(VV,idx,dt);
             RWP->Leave(modexy,Box);
-            RWP->LeaveReflect(modexy1,Box1);
+            // RWP->LeaveReflect(modexy1,Box1);
+            RWP->LeaveReflect1(modexy1,Box1);
 
             
             Pa2Grid(RWP,idc);
@@ -174,7 +177,8 @@ inline void Domain::SurfaceReaction(int ip, DEM::Disk *Pa, DEM::Disk *GPa, RW::P
             RWP->X = O + Pa->Rh*RWP->er;
 
             RWP->Leave(modexy,Box);
-            RWP->LeaveReflect(modexy1,Box1);
+            // RWP->LeaveReflect(modexy1,Box1);
+            RWP->LeaveReflect1(modexy1,Box1);
             #pragma omp atomic
                 Pa->Alimit0 += 1;
 
@@ -210,7 +214,8 @@ inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP
             RWP->X = O + Pa->Rh*er;
 
             RWP->Leave(modexy,Box);
-            RWP->LeaveReflect(modexy1,Box1);
+            // RWP->LeaveReflect(modexy1,Box1);
+            RWP->LeaveReflect1(modexy1,Box1);
             Xi = RWP->X;
         } 
         // std::cout<<dt<<std::endl;
@@ -234,7 +239,8 @@ inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP
             RWP->X = Xi;
             RWP->Move1(VelPt,dtt);
             RWP->Leave(modexy,Box);
-            RWP->LeaveReflect(modexy1,Box1);
+            // RWP->LeaveReflect(modexy1,Box1);
+            RWP->LeaveReflect1(modexy1,Box1);
             
             if(Norm(Pa->X-RWP->X)<=Pa->Rh )
             {
@@ -290,7 +296,8 @@ inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP
             RWP->X = O + Pa->Rh*er;
             RWP->Xb = RWP->X;
             RWP->Leave(modexy,Box);
-            RWP->LeaveReflect(modexy1,Box1);
+            // RWP->LeaveReflect(modexy1,Box1);
+            RWP->LeaveReflect1(modexy1,Box1);
             // throw new Fatal("N!!!");
         }
     }

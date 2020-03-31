@@ -27,6 +27,7 @@ class Particle
     void Move2(Vec3_t &V, double dt);
     void Leave(int modexy, Vec3_t &Box);
     void LeaveReflect(int modexy1, Vec3_t &Box1);
+    void LeaveReflect1(int modexy1, Vec3_t &Box1);
     void Reflect(Vec3_t &C, double R);
     void FindIntersectV(Vec3_t &C, Vec3_t &V, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //with v
     void FindIntersect1(Vec3_t &C, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi); //x in. xb out
@@ -148,6 +149,25 @@ inline void Particle::LeaveReflect(int modexy1, Vec3_t &Box1)
     if(X(modexy1)<Box1(0))
     {
         X(modexy1) = Box1(0) + std::fabs(X(modexy1) - Box1(0));
+    }
+    if(X(modexy1)>Box1(1))
+    {
+        X(modexy1) = Box1(1) - std::fabs(X(modexy1) - Box1(1));
+    }
+}
+
+inline void Particle::LeaveReflect1(int modexy1, Vec3_t &Box1)
+{
+    if(X(modexy1)<Box1(0))
+    {
+        if(AD)
+        {
+            X(modexy1) = -100;
+        }else{
+            AD = false;
+            X(modexy1) = -200;     
+        }
+        
     }
     if(X(modexy1)>Box1(1))
     {

@@ -39,6 +39,10 @@ cmake_install.cmake_install
 HH/cmake_install.cmake_install
 HH/CMakeCache.txt
 HH/Makefile
+swi/CMakeFiles
+swi/cmake_install.cmake_install
+swi/CMakeCache.txt
+swi/Makefile
 CMakeCache.txt
 *.xmf
 *.h5

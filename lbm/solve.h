@@ -108,8 +108,9 @@ inline void Domain::SolveIBM(double Tf, double dtout, char const * TheFileKey, p
 
             tout += dtout;
         }
-        
+        // std::cout<<1<<std::endl;
         if (ptSetup!=NULL) (*ptSetup) ((*this), UserData); 
+        // std::cout<<2<<std::endl;
         
 
         
@@ -152,6 +153,7 @@ inline void Domain::SolveIBM(double Tf, double dtout, char const * TheFileKey, p
             // GhostParticles.assign(Particles.begin(), Particles.end());
             // GhostPeriodic(); 
         }
+        // std::cout<<3<<std::endl;
         
 
         //collide and streaming
@@ -159,6 +161,8 @@ inline void Domain::SolveIBM(double Tf, double dtout, char const * TheFileKey, p
         Stream();
         BounceBack(false);
         CalcProps();
+        // std::cout<<4<<std::endl;
+
         // std::cout<<std::boolalpha<<GhostParticles[0].Ghost<<std::endl;
 
         //trace particle
