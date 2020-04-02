@@ -17,7 +17,7 @@ rwl = 6*R
 fpl = 6*R+tpl
 bbl = 2*R+2
 d = 2.0
-vmax = Re*nu/rwl*1.5
+vmax = Re*nu/(rwl+fpl)*1.5
 print("vmax ",vmax)
 f.write(str(vmax)+"\tmax vel\n")
 f.write(str(R)+"\tR\n")
