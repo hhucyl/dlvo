@@ -87,159 +87,159 @@ void Setup(LBM::Domain &dom, void *UD)
     }
 
     //fix the moving particle if leave the domain in y direction
-	int ipp = 0;
-	double pvy = 0;
-    #pragma omp parallel for schedule(static) num_threads(dom.Nproc)
-    for(size_t ip=0; ip<dom.Particles.size(); ++ip)
-    {
-        if(!dom.Particles[ip].IsFree()) continue;
-        if(dom.Particles[ip].X(1)<dat.bbl-dat.R)
-        {
-            dom.Particles[ip].V = 0.0;
-            dom.Particles[ip].W = 0.0;
-			dom.Particles[ip].X(1) = -100;
-			dom.Particles[ip].Xb(1) = -100;
-            dom.Particles[ip].FixVeloc();
-        }
+	// int ipp = 0;
+	// double pvy = 0;
+ //    #pragma omp parallel for schedule(static) num_threads(dom.Nproc)
+ //    for(size_t ip=0; ip<dom.Particles.size(); ++ip)
+ //    {
+ //        if(!dom.Particles[ip].IsFree()) continue;
+ //        if(dom.Particles[ip].X(1)<dat.bbl-dat.R)
+ //        {
+ //            dom.Particles[ip].V = 0.0;
+ //            dom.Particles[ip].W = 0.0;
+	// 		dom.Particles[ip].X(1) = -100;
+	// 		dom.Particles[ip].Xb(1) = -100;
+ //            dom.Particles[ip].FixVeloc();
+ //        }
 
 
 
-		if(dom.Particles[ip].X(1)>ny-1-dat.fpl - dat.R - 2)
-        {
-            #pragma omp atomic
-            ipp++;
-		}
-        #pragma omp atomic
-		pvy += dom.Particles[ip].V(1);
-	}
-	// std::cout<<"ipp "<<ipp<<std::endl;
-	// std::cout<<"pinit "<<dat.pinit<<std::endl;
-	// dat.pinit = dat.pinit + 1;
+	// 	if(dom.Particles[ip].X(1)>ny-1-dat.fpl - dat.R - 2)
+ //        {
+ //            #pragma omp atomic
+ //            ipp++;
+	// 	}
+ //        #pragma omp atomic
+	// 	pvy += dom.Particles[ip].V(1);
+	// }
+	// // std::cout<<"ipp "<<ipp<<std::endl;
+	// // std::cout<<"pinit "<<dat.pinit<<std::endl;
+	// // dat.pinit = dat.pinit + 1;
 
-	//GY = 1 has bug
-	if(ipp<dat.pinit)
-    {
-        // std::cout<<ipp<<std::endl;
+	// //GY = 1 has bug
+	// if(ipp<dat.pinit)
+ //    {
+ //        // std::cout<<ipp<<std::endl;
 
-        // double py = dat.sy + (dat.pny-1)*dat.pl;
-        // double py = ny-1-3*dat.R;
-        Vec3_t pos(0,0,0);
-        Vec3_t v(0,0,0);
-        Vec3_t w(0,0,0);
-        int pnum = dom.Particles.size();
-        int GridCount[3] = {0};
-        int starty = std::ceil((double)ny-1-(double)dat.fpl);
-        int lx = std::ceil((double)nx/(double)dat.GX);
-        // int ly = std::ceil((double)dat.fpl/(double)dat.GY);
-        // std::cout<<"starty "<<starty<<std::endl;
-        // std::cout<<dat.GX<<" "<<dat.GY<<std::endl;
+ //        // double py = dat.sy + (dat.pny-1)*dat.pl;
+ //        // double py = ny-1-3*dat.R;
+ //        Vec3_t pos(0,0,0);
+ //        Vec3_t v(0,0,0);
+ //        Vec3_t w(0,0,0);
+ //        int pnum = dom.Particles.size();
+ //        int GridCount[3] = {0};
+ //        int starty = std::ceil((double)ny-1-(double)dat.fpl);
+ //        int lx = std::ceil((double)nx/(double)dat.GX);
+ //        // int ly = std::ceil((double)dat.fpl/(double)dat.GY);
+ //        // std::cout<<"starty "<<starty<<std::endl;
+ //        // std::cout<<dat.GX<<" "<<dat.GY<<std::endl;
 
-        for(int igx=0; igx< 3; ++igx)
-        {
-            // GridCount[igx*(dat.GX-1)+igy] = 0;
-            int ixs = std::max(0,igx*lx);
-            int ixe = std::min((double)nx,(double)(igx+1)*lx);
-            int iys = starty;
-            int iye = ny;
-            // std::cout<<"x "<<ixs<<" "<<ixe<<std::endl;
-            // std::cout<<"y "<<iys<<" "<<iye<<std::endl;
-            for(int ix=ixs; ix<ixe; ++ix)
-            for(int iy=iys; iy<iye; ++iy)
-            {
-                if(dom.Check[ix][iy][0][0]>0)
-                {
-                    GridCount[igx] += 1;
-                }
+ //        for(int igx=0; igx< 3; ++igx)
+ //        {
+ //            // GridCount[igx*(dat.GX-1)+igy] = 0;
+ //            int ixs = std::max(0,igx*lx);
+ //            int ixe = std::min((double)nx,(double)(igx+1)*lx);
+ //            int iys = starty;
+ //            int iye = ny;
+ //            // std::cout<<"x "<<ixs<<" "<<ixe<<std::endl;
+ //            // std::cout<<"y "<<iys<<" "<<iye<<std::endl;
+ //            for(int ix=ixs; ix<ixe; ++ix)
+ //            for(int iy=iys; iy<iye; ++iy)
+ //            {
+ //                if(dom.Check[ix][iy][0][0]>0)
+ //                {
+ //                    GridCount[igx] += 1;
+ //                }
                 
-            }
-            // std::cout<<igx<<" "<<igy<<" "<<igx*(dat.GX-1)+igy<<" "<<GridCount[igx*(dat.GX-1)+igy]<<std::endl;
-        }
+ //            }
+ //            // std::cout<<igx<<" "<<igy<<" "<<igx*(dat.GX-1)+igy<<" "<<GridCount[igx*(dat.GX-1)+igy]<<std::endl;
+ //        }
 
-        for(int i=ipp; i<dat.pinit; ++i)
-        {
+ //        for(int i=ipp; i<dat.pinit; ++i)
+ //        {
         
             
-            int index = std::distance(GridCount,std::min_element(GridCount,GridCount+3));
-            // std::cout<<index<<std::endl;
-            // for(int i=0; i<3; ++i)
-            // {
-            // 	std::cout<<GridCount[i]<<" ";
-            // }
-            // std::cout<<std::endl;
+ //            int index = std::distance(GridCount,std::min_element(GridCount,GridCount+3));
+ //            // std::cout<<index<<std::endl;
+ //            // for(int i=0; i<3; ++i)
+ //            // {
+ //            // 	std::cout<<GridCount[i]<<" ";
+ //            // }
+ //            // std::cout<<std::endl;
 
-            // int igy = index%(dat.GX-1);
-            // int igx = std::floor(index/(dat.GX-1));
-            int igx = index;
+ //            // int igy = index%(dat.GX-1);
+ //            // int igx = std::floor(index/(dat.GX-1));
+ //            int igx = index;
 
-            double ll = dat.ll;
-            // std::cout<<"ll "<<ll<<std::endl;
-            int ixs = std::max(ll,(double)igx*lx);
-            int ixe = std::min((double)nx-1-ll,(double)(igx+1)*lx);
-            int iys = std::ceil(starty+ll);
-            int iye = std::floor((double)ny-1-ll);
-            // std::cout<<"starty "<<starty<<std::endl;
-            // std::cout<<"igx "<<igx<<" x "<<ixs<<" "<<ixe<<std::endl;
-            // std::cout<<"igy "<<0<<" y "<<iys<<" "<<iye<<std::endl;
-            int N = 0;
-            bool overlap = false;
-            double px,py;
-            while(true)
-            {
-                overlap = false;
-                px = random((double)ixs,(double)ixe);
-                py = random((double)iys,(double)iye);
-                pos = px, py , 0;
-                for(int ip=0; ip<(int)dom.Particles.size(); ++ip)
-                {
-                    if(pos(0)<0 || pos(1)<0) continue;
-        			if(!dom.Particles[ip].IsFree()) continue;
+ //            double ll = dat.ll;
+ //            // std::cout<<"ll "<<ll<<std::endl;
+ //            int ixs = std::max(ll,(double)igx*lx);
+ //            int ixe = std::min((double)nx-1-ll,(double)(igx+1)*lx);
+ //            int iys = std::ceil(starty+ll);
+ //            int iye = std::floor((double)ny-1-ll);
+ //            // std::cout<<"starty "<<starty<<std::endl;
+ //            // std::cout<<"igx "<<igx<<" x "<<ixs<<" "<<ixe<<std::endl;
+ //            // std::cout<<"igy "<<0<<" y "<<iys<<" "<<iye<<std::endl;
+ //            int N = 0;
+ //            bool overlap = false;
+ //            double px,py;
+ //            while(true)
+ //            {
+ //                overlap = false;
+ //                px = random((double)ixs,(double)ixe);
+ //                py = random((double)iys,(double)iye);
+ //                pos = px, py , 0;
+ //                for(int ip=0; ip<(int)dom.Particles.size(); ++ip)
+ //                {
+ //                    if(pos(0)<0 || pos(1)<0) continue;
+ //        			if(!dom.Particles[ip].IsFree()) continue;
 
-                    if(Norm(pos - dom.Particles[ip].X)<2.5*dat.R || Norm(pos - dom.GhostParticles[ip].X)<2.5*dat.R)
-                    {
-                        overlap = true;
-                        break;
-                    }
-                }
-                N += 1;
-                if(!overlap) break;
-                if(N>1000) throw new Fatal("Cannot find!!!!");
-            }
+ //                    if(Norm(pos - dom.Particles[ip].X)<2.5*dat.R || Norm(pos - dom.GhostParticles[ip].X)<2.5*dat.R)
+ //                    {
+ //                        overlap = true;
+ //                        break;
+ //                    }
+ //                }
+ //                N += 1;
+ //                if(!overlap) break;
+ //                if(N>1000) throw new Fatal("Cannot find!!!!");
+ //            }
             
-            GridCount[index] += dat.R*4*dat.R;
+ //            GridCount[index] += dat.R*4*dat.R;
 			
-            // Vec3_t dxr(random(-0.5*dat.R,0.5*dat.R),random(-0.5*dat.R,0.5*dat.R),0.0);
-            // double px = 0.5*dat.pl+i*dat.pl;
-            pos = px, py , 0;
-            // pos = pos +dxr;
-            // v = Norm(dat.g0)/(2.0*dat.nu)*(-1.0*((pos(1)-dat.sy-dat.H)*(pos(1)-dat.sy-dat.H)-dat.H*dat.H)), 0,0;
-            int ipx = std::round(px);
-            int ipy = std::round(py);
-            ipy = (ipy>(int)ny-1) ? ny-1 : ipy; 
-            ipx = (ipx>(int)nx-1) ? nx-1 : ipx; 
-            ipx = (ipx<0) ? 0 : ipx;
-            v = dom.Vel[ipx][ipy][0](0), 0, 0; 
-            dom.Particles.push_back(DEM::Disk(-pnum, pos, v, w, dat.rhos, dat.R, dom.dtdem));
-            // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
-            pnum++;
-            dom.Particles.back().Ff =  0.0, -M_PI*dat.R*dat.R*(dat.rhos/1.0-1)*dat.g,0.0, 0.0;
-            // dom.Particles.back().Ff = 0.0, 0.0, 0.0;
-            dom.Particles.back().Kn = dat.Kn;
-            dom.Particles.back().Gn = dat.Gn;
-            dom.Particles.back().Kt = dat.Kt;
-            dom.Particles.back().Mu = dat.Mu;
-            dom.Particles.back().Eta = dat.Eta;
-            dom.Particles.back().Beta = dat.Beta;
-            dom.Particles.back().A = dat.A;
-            dom.Particles.back().kappa = dat.kappa;
-            dom.Particles.back().Z = dat.Z;
-			dom.Particles.back().VdwCutoff = 1.57e-10/dat.ratiol;
-            dom.Particles.back().D = dat.D;
+ //            // Vec3_t dxr(random(-0.5*dat.R,0.5*dat.R),random(-0.5*dat.R,0.5*dat.R),0.0);
+ //            // double px = 0.5*dat.pl+i*dat.pl;
+ //            pos = px, py , 0;
+ //            // pos = pos +dxr;
+ //            // v = Norm(dat.g0)/(2.0*dat.nu)*(-1.0*((pos(1)-dat.sy-dat.H)*(pos(1)-dat.sy-dat.H)-dat.H*dat.H)), 0,0;
+ //            int ipx = std::round(px);
+ //            int ipy = std::round(py);
+ //            ipy = (ipy>(int)ny-1) ? ny-1 : ipy; 
+ //            ipx = (ipx>(int)nx-1) ? nx-1 : ipx; 
+ //            ipx = (ipx<0) ? 0 : ipx;
+ //            v = dom.Vel[ipx][ipy][0](0), 0, 0; 
+ //            dom.Particles.push_back(DEM::Disk(-pnum, pos, v, w, dat.rhos, dat.R, dom.dtdem));
+ //            // std::cout<<pos(0)<<" "<<pos(1)<<std::endl;
+ //            pnum++;
+ //            dom.Particles.back().Ff =  0.0, -M_PI*dat.R*dat.R*(dat.rhos/1.0-1)*dat.g,0.0, 0.0;
+ //            // dom.Particles.back().Ff = 0.0, 0.0, 0.0;
+ //            dom.Particles.back().Kn = dat.Kn;
+ //            dom.Particles.back().Gn = dat.Gn;
+ //            dom.Particles.back().Kt = dat.Kt;
+ //            dom.Particles.back().Mu = dat.Mu;
+ //            dom.Particles.back().Eta = dat.Eta;
+ //            dom.Particles.back().Beta = dat.Beta;
+ //            dom.Particles.back().A = dat.A;
+ //            dom.Particles.back().kappa = dat.kappa;
+ //            dom.Particles.back().Z = dat.Z;
+	// 		dom.Particles.back().VdwCutoff = 1.57e-10/dat.ratiol;
+ //            dom.Particles.back().D = dat.D;
         
             
-            dom.Particles.back().Rh = 0.80*dat.R;
-        }
+ //            dom.Particles.back().Rh = 0.80*dat.R;
+ //        }
     
-    }
+ //    }
 
 
 }
@@ -438,7 +438,7 @@ int main (int argc, char **argv) try
 	// Initial(dom,dom.UserData);
     // bool iscontinue = false;
     
-    int ip = 0;
+    
 
     if(!iscontinue)
     {
@@ -446,6 +446,8 @@ int main (int argc, char **argv) try
         Vec3_t pos(0.0,0.0,0.0);
         Vec3_t v(0.0,0.0,0.0);
         Vec3_t w(0.0,0.0,0.0);
+        int ip = 0;
+        
         for(int i=0; i<pinit; ++i)
         {
             double x;
@@ -455,41 +457,18 @@ int main (int argc, char **argv) try
             ifile>>x>>y>>r>>tag; ifile.ignore(200,'\n');
             // std::cout<<" x "<<x<<" y "<<y<<" r "<<r<<" t "<<tag<<std::endl;
             pos = x,y,0;
-            dom.Particles.push_back(DEM::Disk(i, pos, v, w, rhos, r, dom.dtdem));
-            if(tag<0){
-            	dom.Particles[i].FixVeloc();	
+             if(tag<0){
+                dom.Particles.push_back(DEM::Disk(ip, pos, v, w, rhos, r, dom.dtdem));
+            	dom.Particles[ip].FixVeloc();
+                ip++;	
             }else{
-            	dom.Particles[i].V(0) = vmax;
-            } 
+                // dom.Particles.push_back(DEM::Disk(i, pos, v, w, rhos, r, dom.dtdem));
+            	// dom.Particles[i].V(0) = vmax;
+                // ip++;
+            }  
         }
        
 
-    }
-
-    Vec3_t pos(0.0,0.0,0.0);
-    Vec3_t v(0.0,0.0,0.0);
-    Vec3_t w(0.0,0.0,0.0);
-    for(int i=0; i<pinit; ++i)
-    {
-        double x;
-        double y;
-        double r;
-        int tag;
-        ifile>>x>>y>>r>>tag; ifile.ignore(200,'\n');
-        // std::cout<<" x "<<x<<" y "<<y<<" r "<<r<<" t "<<tag<<std::endl;
-        pos = x,y,0;
-        int ix = std::round(x);
-        int iy = std::round(y);
-        if(tag<0){
-            // dom.Particles.push_back(DEM::Disk(ip, pos, v, w, rhos, r, dom.dtdem));
-            // dom.Particles[ip].FixVeloc();
-            // ip++;   
-        }else{
-            v = dom.Vel[ix][iy][0];
-            dom.Particles.push_back(DEM::Disk(ip, pos, v, w, rhos, r, dom.dtdem));
-            dom.Particles[ip].V(0) = vmax;
-            ip++;
-        }  
     }
     
 
@@ -538,27 +517,14 @@ int main (int argc, char **argv) try
         for(int ir=0; ir<RWPN; ++ir)
         {
             Vec3_t xr(random(ix-1,ix),random(iy,iy+1),0);
-            bool add = true;
-            for(size_t ip=0; ip<dom.Particles.size(); ++ip)
-            {
-                DEM::Disk *Pa = &dom.Particles[ip];
-                if(Norm(xr-Pa->X)<=1.1*Pa->R)
-                {
-                    add = false;
-                    break;
-                }
-            }
-            if(add)
-            {
-                dom.RWParticles.push_back(RW::Particle(xr,Dm));
-            }
+            dom.RWParticles.push_back(RW::Particle(xr,Dm));
         }
     }
 
     std::cout<<"RW particles complete "<<std::endl;
     std::cout<<"RW particles NUM "<<dom.RWParticles.size()<<"Dm "<<Dm<<std::endl;
 
-    double Tf = 2e6;
+    double Tf = 1e6;
     dom.IsF = true;    
     dom.IsRW = true;    
     double dtout = 2e3;

@@ -112,10 +112,10 @@ print("ny ", ny)
 ll = 1.2*R
 f.write(str(ll)+"\tll buffer for add\n")
 
-ppx = np.zeros(fpn+Pnx*Pny)
-ppy = np.zeros(fpn+Pnx*Pny)
-ptag = np.zeros(fpn+Pnx*Pny)
-pr = np.zeros(fpn+Pnx*Pny)
+ppx = np.zeros(2*fpn+Pnx*Pny)
+ppy = np.zeros(2*fpn+Pnx*Pny)
+ptag = np.zeros(2*fpn+Pnx*Pny)
+pr = np.zeros(2*fpn+Pnx*Pny)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 pn = 0
@@ -155,6 +155,34 @@ for i in range(fpn):
 
     cir = Circle(xy=(ppx[i],ppy[i]),radius=R,alpha=0.2)
     ax.add_patch(cir)
+
+for i in range(fpn):
+    
+    while True:
+        rand = np.random.rand(2)
+        px = np.random.uniform(ll, nx-1-ll)
+        py = np.random.uniform(sy + ll, ny-1 - fpl -ll)
+        nn = 0
+        overlap = False
+        for ii in range(pn):
+            dd = np.sqrt((px-ppx[ii])**2+(py-ppy[ii])**2)
+            if dd<3*R:
+                overlap = True
+                break
+        if not overlap:
+            break
+
+    ppx[pn] = px
+    ppy[pn] = py
+    pr[pn] = R
+    ptag[pn] = 1 
+    pn = pn+1
+
+    cir = Circle(xy=(px,py),radius=R,alpha=0.2)
+    ax.add_patch(cir)
+
+
+
 print("sy ",sy)
 for j in range(Pny):
     py = j*(np.sqrt(3)*RR+pdy) + RR + 1 + bbl
@@ -201,8 +229,8 @@ plt.legend()
 plt.savefig("Force.png")
 
 f.write(str(sy)+'\tsy\n')
-f.write(str(fpn+Pnx*Pny)+'\tpinit\n')
-for i in range(fpn+Pnx*Pny):
+f.write(str(2*fpn+Pnx*Pny)+'\tpinit\n')
+for i in range(2*fpn+Pnx*Pny):
     f.write(str(ppx[i])+' '+str(ppy[i])+' '+str(pr[i])+' '+str(ptag[i])+'\n')
 f.close()
 

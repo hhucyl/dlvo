@@ -25,6 +25,7 @@ INCLUDE(${MECHSYSSANDBOX_SOURCE_DIR}/UseMECHSYS.cmake)
 SET(PROGS
     test_swi
     test_swi_rw
+    test_swi_rw1
 )
 
 FOREACH(var ${PROGS})
