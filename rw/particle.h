@@ -9,6 +9,9 @@ namespace RW
 class Particle
 {
     public:
+
+    typedef void (RW::Particle::*pb)  (int modexy, Vec3_t &Box);
+
     Particle(Vec3_t &X, double dm);
     Vec3_t X;
     Vec3_t Xb;
@@ -25,6 +28,8 @@ class Particle
     void Move(std::vector<Vec3_t> &VV, std::vector<int> &idx, double dt);
     void Move1(Vec3_t &V, double dt);
     void Move2(Vec3_t &V, double dt);
+    pb Leave1;
+    pb Leave2;
     void Leave(int modexy, Vec3_t &Box);
     void LeaveReflect(int modexy1, Vec3_t &Box1);
     void LeaveReflect1(int modexy1, Vec3_t &Box1);
@@ -35,6 +40,7 @@ class Particle
 
     void Adsorption(double Pa, int iip);
     void Desorption(double Pd);
+    void Boundary(int modexy, Vec3_t &Box, int modexy1, Vec3_t &Box1);
 
     //random
     
@@ -52,7 +58,11 @@ inline Particle::Particle(Vec3_t &X0, double dm): gen(std::random_device()())
     // O = 0,0,0;
     // er = 0,0,0;
     // Rh = 0,0,0;
+    Leave1 = &RW::Particle::Leave;
+    Leave2 = &RW::Particle::LeaveReflect1;
 }
+
+
 
 inline void Particle::Adsorption(double Pa, int iip)
 {
@@ -173,6 +183,12 @@ inline void Particle::LeaveReflect1(int modexy1, Vec3_t &Box1)
     {
         X(modexy1) = Box1(1) - std::fabs(X(modexy1) - Box1(1));
     }
+}
+
+inline void Particle::Boundary(int modexy, Vec3_t &Box, int modexy1, Vec3_t &Box1)
+{
+    (this->*Leave1)(modexy, Box);
+    (this->*Leave2)(modexy1, Box1);
 }
 
 inline void Particle::FindIntersectV(Vec3_t &C, Vec3_t &V, double R, Vec3_t &X, Vec3_t &Xb, Vec3_t &Xi)

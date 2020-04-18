@@ -322,6 +322,7 @@ int main (int argc, char **argv) try
 	                RW::Particle *RWP = &dom.RWParticles.back();
 	                RWP->AD = true;//if this rwp is adsorped it is need to be set before solve
 	                RWP->ip = ip;
+                    RWP->Leave2 = &RW::Particle::LeaveReflect;
 	            }
 	            Pa->Alimit = RWP;//adsorption limit 
 	            Pa->Alimit0 = RWP;//initial adsorption amount
