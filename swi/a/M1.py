@@ -68,19 +68,24 @@ Vs = np.zeros(len(layer)) + np.nan
 Vt = np.zeros(len(layer)) + np.nan
 Vv = np.zeros(len(layer)) + np.nan
 As = np.zeros(len(layer)) + np.nan
- 
+
+
 tt = nn*2e3
+Out = np.zeros((len(tt),len(layer)+1)) + np.nan
 for ii,c in zip(range(len(layer)),colors):
 	plt.plot(np.sqrt(tt),M[:,ii],'o',color=c,label=layer[ii])
 	Z = np.polyfit(np.sqrt(tt),M[:,ii],1)
 	k1[ii] = -Z[0]
 	plt.plot(np.sqrt(tt),Z[0]*np.sqrt(tt)+Z[1],color=c)
+
+	Out[:,0] = tt
+	Out[:,ii+1] = M[:,ii] 
 # 	Vs[ii] = np.sum(np.sum(ga[1:layer[ii],:]))
 # 	Vt[ii] = (layer[ii]*1.0-1.0)*Nx*1.0
 # 	Vv[ii] = Vt[ii] - Vs[ii]
 # 	As[ii] = Nx - np.sum(ga[layer[ii],:]) 
 
-
+np.savetxt('M.out',Out,fmt='%0.8f')
 # plt.legend()
 plt.xlabel('t^0.5')
 plt.ylabel('M(t)/M_0')
@@ -93,6 +98,11 @@ plt.xlabel('t')
 plt.ylabel('Median y')
 plt.savefig('ym.png',dpi=500)
 plt.clf()
+
+Out[:,1] = ym
+np.savetxt('ym.out',Out[:,:2],fmt='%0.8f')
+
+
 
 plt.pcolor(yhis)
 plt.clim(vmin=0, vmax=1e-2)
