@@ -110,7 +110,7 @@ yl = (yt1-ppy)/(2.0*RR)
 yl = np.around(yl,decimals=2)
 print(yt)
 xt = np.arange(1,len(num)+1)
-xl = num*2
+xl = (xt-1.0)*2
 
 plt.pcolor(yhis)
 
@@ -119,6 +119,7 @@ plt.xlabel(r'$t (\times10^3)$')
 plt.ylabel(r'$z^*$')
 plt.yticks(yt,yl)
 plt.xlim(1,len(num))
+plt.ylim(0,42)
 plt.clim(vmin=0, vmax=1e-2)
 plt.colorbar()
 plt.tight_layout()
