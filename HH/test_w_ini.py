@@ -142,7 +142,7 @@ for j in range(Pny):
         ppx[nn] = px
         ppy[nn] = py
         pr[nn]  = RR
-        ptag[nn] = 1#-1 fix 1 move
+        ptag[nn] = -1#-1 fix 1 move
         nn = nn + 1
         cir = Circle(xy=(px,py),radius=RR-d,alpha=0.2)
         cir1 = Circle(xy=(px,py),color='r',radius=RR,alpha=0.1)

@@ -299,7 +299,7 @@ int main (int argc, char **argv) try
     
     //rw Particles start
     double Dm = 1e-2*nu;
-    int RWP = 5e3;//adsorption limit
+    int RWP = 1e4;//adsorption limit
     dom.IsRW = true;
     Vec3_t xt(0,0,0);
     double pi = 3.1415926;
@@ -310,7 +310,7 @@ int main (int argc, char **argv) try
 		for(size_t ip=0; ip<dom.Particles.size(); ++ip)
 	    {    
 	        DEM::Disk *Pa = &dom.Particles[ip];
-	        if(Pa->IsFree())//release 
+	        if(!Pa->IsFree())//release 
 	        {
 	            for(int ir=0; ir<RWP; ++ir)
 	            {

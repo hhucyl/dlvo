@@ -7,11 +7,11 @@ import matplotlib.cm as cm
 
 prefix = "/media/user/9EAEE48CAEE45DF1/cyl_temp/p-bed-data/1e4/"
 prefix = "../../post/"
-prefix = "../"
+prefix = "../../../exp/10fn_500re_10ga/"
 prefix = prefix + "test_swi_r1_"
 R = 8
 RR = 48
-num = np.arange(0,235+1)
+num = np.arange(0,9+1)
 nu = 0.01
 Dm = nu/1e3 
 
@@ -37,6 +37,7 @@ print('initial num ',M0)
 
 step = 10
 b = np.arange(0,ppy+step,step)
+print(b)
 sb = len(b)
 sb = sb-1
 nn = np.zeros(len(num)) + np.nan
@@ -103,10 +104,24 @@ Out[:,1] = ym
 np.savetxt('ym.out',Out[:,:2],fmt='%0.8f')
 
 
+yt1 = np.array([73-RR, 73, 73+RR, 219.6025-RR, 219.6025, 219.6025+RR, 366.2051-RR, 366.2051, 366.2051+RR])
+yt = yt1/step
+yl = (yt1-ppy)/(2.0*RR)
+yl = np.around(yl,decimals=2)
+print(yt)
+xt = np.arange(1,len(num)+1)
+xl = num*2
 
 plt.pcolor(yhis)
+
+plt.xticks(xt,xl)
+plt.xlabel(r'$t (\times10^3)$')
+plt.ylabel(r'$z^*$')
+plt.yticks(yt,yl)
+plt.xlim(1,len(num))
 plt.clim(vmin=0, vmax=1e-2)
 plt.colorbar()
+plt.tight_layout()
 plt.savefig('yhis.png',dpi=500)
 
 plt.clf()
