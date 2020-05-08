@@ -291,7 +291,7 @@ inline void Domain::CheckInside(DEM::Disk *Pa, DEM::Disk *GPa, RW::Particle *RWP
                     
             }
 
-            if(nn>1e4)
+            if(nn>1e3)
             {
                 fflag = true;
                 break;
