@@ -1,4 +1,4 @@
-# Install script for directory: /home/m3lab/dlvo/HH
+# Install script for directory: /home/m3lab/dlvo/SG
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/m3lab/dlvo/HH/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/m3lab/dlvo/SG/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

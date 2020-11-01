@@ -133,17 +133,19 @@ inline void Domain::SolveIBM(double Tf, double dtout, char const * TheFileKey, p
             GhostPeriodic();
             
         
-         
+            // std::cout<<11<<std::endl; 
             //set fluid force
             if(flag){
                 AddDisksIBM();
             }
+            // std::cout<<22<<std::endl; 
 
             //update particles contact
             if(flag){
                 UpdateParticlesContacts();
                 // UpdateParticlesContactsIBM();
             }
+            // std::cout<<33<<std::endl; 
             
             UpdateParticlePairForce();
         
@@ -168,7 +170,7 @@ inline void Domain::SolveIBM(double Tf, double dtout, char const * TheFileKey, p
         //trace particle
         if(IsRW) rwsolve_sub(dt);
         // if(IsRW) rwsolve_sub_nopar(dt);
-
+        // std::cout<<5<<std::endl;
         Time += 1;
     }
     printf("%s  Final CPU time       = %s\n",TERM_CLR2, TERM_RST);

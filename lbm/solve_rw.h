@@ -344,6 +344,7 @@ inline void Domain::Pa2GridV(RW::Particle *RWP, std::vector<int> &idx, std::vect
     idx[1] = x2;
     idx[2] = y1;
     idx[3] = y2;
+    // std::cout<<"PV "<<"x1 "<<x1<<" x2 "<<" y1 "<<y1<<" y2 "<<y2<<std::endl;
     if(modexy ==0)
     {
         if(x1<0)

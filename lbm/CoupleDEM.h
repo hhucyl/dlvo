@@ -65,6 +65,8 @@ inline void Domain::UpdateParticlesContacts()
         int ixe = std::min(std::ceil(Pa->X(0) + ((Pa->eal+Pa->D)+Pa->R) + dx),(double) nx);
         int iys = std::max(std::floor(Pa->X(1) - ((Pa->eal+Pa->D)+Pa->R) - dx),0.0);
         int iye = std::min(std::ceil(Pa->X(1) + ((Pa->eal+Pa->D)+Pa->R) + dx),(double) ny);
+        // std::cout<<"Pa "<<Pa->Tag<<" "<<Pa->X(0)<<" "<<Pa->X(1)<<std::endl;
+        // std::cout<<ixs<<" "<<ixe<<" "<<iys<<" "<<iye<<std::endl;
         for(int ix=ixs; ix<ixe; ++ix)
         for(int iy=iys; iy<iye; ++iy) 
         {
@@ -90,6 +92,7 @@ inline void Domain::UpdateParticlesContacts()
                 
         }
     }
+
     // join_contactlist_sub(myset_privatepp,ListofContactsPP);
 
     // ListofContactsPG.clear();

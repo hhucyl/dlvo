@@ -43,6 +43,15 @@ swi/CMakeFiles
 swi/cmake_install.cmake_install
 swi/CMakeCache.txt
 swi/Makefile
+SG/CMakeFiles
+SG/cmake_install.cmake_install
+SG/CMakeCache.txt
+SG/Makefile
+benchmark/CMakeFiles
+benchmark/cmake_install.cmake_install
+benchmark/CMakeCache.txt
+benchmark/Makefile
+
 CMakeCache.txt
 *.xmf
 *.h5
